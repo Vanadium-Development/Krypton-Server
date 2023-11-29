@@ -1,0 +1,13 @@
+spring:
+  web:
+    resources:
+      add-mappings: false
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${KRYPTON_DB_HOST}:${KRYPTON_DB_PORT}/${KRYPTON_DB_NAME}
+    username: ${KRYPTON_DB_USER}
+    password: ${KRYPTON_DB_PASSWORD}
+  flyway:
+    baseline-on-migrate: true
+    default-schema: krypton_server
+    schemas: krypton_server

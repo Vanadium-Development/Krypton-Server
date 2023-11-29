@@ -1,0 +1,114 @@
+openapi: 3.0.3
+info:
+  title: Krypton Server
+  description: Documentation for backend of the Krypton Password manager
+  version: 1.0.0
+servers:
+  - url: 'http://localhost:8080'
+    description: Local Develop
+  - url: "https://prod.krypton.vanadium.dev"
+    description: Krypton Prod
+  - url: "https://dev.krypton.vanadium.dev"
+    description: Krypton Develop
+paths:
+  /user:
+    get:
+      operationId: getUsers
+      tags: [User]
+      summary: "Query users"
+      description: "This endpoint is used to query users by name filtering and pagination. If the name query is not 
+      provided, it will query all users."
+      parameters:
+        - name: name
+          in: query
+          schema:
+            type: string
+          required: false
+          description: Filter by name of the user
+        - name: page
+          schema:
+            type: integer
+          in: query
+          required: true
+          description: Get users by page
+      responses:
+        200:
+          description: Request was successful
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/user"
+    post:
+      operationId: createUser
+      tags: [User]
+      summary: "Create a user"
+      description: "This endpoint is used to create a user and is only available"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required: [firstname, lastname, username, password]
+              properties:
+                firstname:
+                  type: string
+                lastname:
+                  type: string
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        200:
+          description: User successfully created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/statusResponse"
+
+
+components:
+  schemas:
+    statusResponse:
+      description: Generic response with one status field
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+
+    error:
+      description: An error
+      type: object
+      required: [correlationId, exception, status, statusCode, message]
+      properties:
+        correlationId:
+          type: string
+          format: uuid
+        exception:
+          type: string
+        status:
+          type: string
+        statusCode:
+          type: integer
+        message:
+          type: string
+
+    user:
+      description: A user entity
+      type: object
+      required: [id, firstname, lastname, username, admin]
+      properties:
+        id:
+          type: string
+          format: uuid
+        firstname:
+          type: string
+        lastname:
+          type: string
+        username:
+          type: string
+        admin:
+          type: boolean
