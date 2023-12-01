@@ -28,4 +28,10 @@ class UserService(private val userDao: UserDao, private val passwordEncoder: Pas
         return entity
     }
 
+    fun filterUsersByUsernamePaginated(username: String?, page: Int): List<UserEntity> {
+        if(username != null) {
+            return userDao.filterByUsernamePaginated(page, username)
+        }
+        return userDao.findAllPaginated(page)
+    }
 }

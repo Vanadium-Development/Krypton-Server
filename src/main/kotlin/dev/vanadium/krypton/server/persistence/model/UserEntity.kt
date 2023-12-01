@@ -1,5 +1,6 @@
 package dev.vanadium.krypton.server.persistence.model
 
+import dev.vanadium.krypton.server.openapi.model.User
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
@@ -39,5 +40,10 @@ class UserEntity {
     @Column("deleted_at")
     var deletedAt: Instant? = null
 
+
+
+    fun toUserDto(): User {
+        return User(this.id, this.firstname, this.lastname, this.username, this.admin)
+    }
 
 }
