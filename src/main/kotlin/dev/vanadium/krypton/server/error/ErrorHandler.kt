@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.servlet.NoHandlerFoundException
 import java.lang.Exception
 
 @Component
@@ -23,6 +24,7 @@ class ErrorHandler {
         return when(exception) {
             is KryptonApiException -> createErrorResponse(response, exception, exception.statusCode, exception.shouldLog)
             is ConstraintViolationException -> createErrorResponse(response, exception, HttpStatus.BAD_REQUEST, false)
+            is NoHandlerFoundException -> createErrorResponse(response, exception, HttpStatus.NOT_FOUND, false)
             else -> createErrorResponse(response, exception, HttpStatus.INTERNAL_SERVER_ERROR, true)
         }
     }
