@@ -1,6 +1,5 @@
 package dev.vanadium.krypton.server.security
 
-import jakarta.servlet.FilterChain
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.Order

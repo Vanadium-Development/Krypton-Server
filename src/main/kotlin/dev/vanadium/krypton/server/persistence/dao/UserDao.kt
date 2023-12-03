@@ -18,4 +18,7 @@ interface UserDao : CrudRepository<UserEntity, UUID> {
 
     @Query("""select  * from krypton_server."user" limit 10 offset (10 * :page) rows""")
     fun findAllPaginated(@Param("page") page: Int): List<UserEntity>
+
+    @Query("""select * from krypton_server."user" where username = :username""")
+    fun getUserByUsername(@Param("username") username: String): UserEntity?
 }

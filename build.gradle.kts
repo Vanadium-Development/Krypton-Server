@@ -42,7 +42,7 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.flywaydb:flyway-core")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.springdoc:springdoc-openapi-ui:1.7.0")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
     runtimeOnly("io.micrometer:micrometer-registry-prometheus")
     runtimeOnly("org.postgresql:postgresql")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
@@ -52,7 +52,7 @@ dependencies {
 
 openApiGenerate {
     generatorName = "kotlin-spring"
-    inputSpec = "$rootDir/src/main/resources/spec.yaml"
+    inputSpec = "$rootDir/src/main/resources/static/spec.yaml"
     invokerPackage = "dev.vanadium.krypton.server"
     apiPackage = "dev.vanadium.krypton.server.openapi.controllers"
     modelPackage = "dev.vanadium.krypton.server.openapi.model"

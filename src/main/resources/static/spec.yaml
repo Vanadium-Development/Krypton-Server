@@ -68,7 +68,39 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/statusResponse"
-
+  /auth/login:
+    post:
+      operationId: login
+      tags: [Authentication]
+      summary: Login
+      description: This endpoint takes credentials and returns a session for a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required: [username, password]
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        200:
+          description: Login was successful
+          content:
+            application/json:
+              schema:
+                required: [token]
+                properties:
+                  token:
+                    type: string
+        401:
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
 
 components:
   schemas:

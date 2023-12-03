@@ -11,3 +11,7 @@ spring:
     baseline-on-migrate: true
     default-schema: krypton_server
     schemas: krypton_server
+springdoc:
+  swagger-ui:
+    path: /spec.yaml
+    enabled: true
