@@ -1,11 +1,12 @@
 package dev.vanadium.krypton.server.security
 
+import dev.vanadium.krypton.server.persistence.model.UserEntity
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
 
-class KryptonAuthentication : Authentication {
+class KryptonAuthentication(val user: UserEntity, val token: String) : Authentication {
     override fun getName(): String {
-        return "Hans Tester"
+        return user.username
     }
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
@@ -13,16 +14,16 @@ class KryptonAuthentication : Authentication {
     }
 
     override fun getCredentials(): Any {
-        return "Hans Tester"
+        return token
     }
 
     override fun getDetails(): Any {
-        return "Hans Tester"
+        return "N/a"
 
     }
 
-    override fun getPrincipal(): Any {
-        return "Hans Tester"
+    override fun getPrincipal(): UserEntity {
+        return user
     }
 
     override fun isAuthenticated(): Boolean {

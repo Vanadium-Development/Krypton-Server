@@ -1,5 +1,6 @@
 package dev.vanadium.krypton.server.security
 
+import dev.vanadium.krypton.server.persistence.dao.SessionDao
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -10,7 +11,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @EnableWebSecurity
 @Configuration
-class TokenAccessFilterChainConfig {
+class TokenAccessFilterChainConfig(private var sessionDao: SessionDao) {
 
 
     @Bean
@@ -26,7 +27,7 @@ class TokenAccessFilterChainConfig {
                 authorize(anyRequest, authenticated)
             }
 
-            addFilterBefore<UsernamePasswordAuthenticationFilter>(TokenFilter())
+            addFilterBefore<UsernamePasswordAuthenticationFilter>(TokenFilter(sessionDao))
         }
 
         return http.build()

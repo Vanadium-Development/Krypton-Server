@@ -10,6 +10,10 @@ servers:
     description: Krypton Prod
   - url: "https://dev.krypton.vanadium.dev"
     description: Krypton Develop
+
+security:
+  - token: []
+
 paths:
   /user:
     get:
@@ -70,6 +74,7 @@ paths:
                 $ref: "#/components/schemas/statusResponse"
   /auth/login:
     post:
+      security: []
       operationId: login
       tags: [Authentication]
       summary: Login
@@ -101,8 +106,26 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
+  /me:
+    get:
+      tags: [Me]
+      operationId: getOwnUser
+      summary: Get logged in user
+      description: This endpoint returns information of the current logged in user
+      responses:
+        200:
+          description: Successful request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/user"
 
 components:
+  securitySchemes:
+    token:
+      name: Authentication Token
+      type: http
+      scheme: bearer
   schemas:
     statusResponse:
       description: Generic response with one status field
