@@ -24,11 +24,8 @@ class UserEntity {
     @Column("username")
     lateinit var username: String
 
-    @Column("auth")
-    lateinit var auth: String
-
-    @Column("authMethod")
-    lateinit var authMethod: UserAuthMethod
+    @Column("pubKey")
+    lateinit var pubKey: String
 
     @Column("admin")
     var admin: Boolean = false
@@ -42,8 +39,6 @@ class UserEntity {
 
     @Column("deleted_at")
     var deletedAt: Instant? = null
-
-
 
     fun toUserDto(): User {
         return User(this.id, this.firstname, this.lastname, this.username, this.admin)

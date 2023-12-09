@@ -55,7 +55,7 @@ paths:
         content:
           application/json:
             schema:
-              required: [firstname, lastname, username, auth-method, auth]
+              required: [firstname, lastname, username, pubKey]
               properties:
                 firstname:
                   type: string
@@ -63,10 +63,8 @@ paths:
                   type: string
                 username:
                   type: string
-                auth-method:
+                pubKey:
                   type: string
-                auth:
-                  type: string  # Either a public key of a password
       responses:
         200:
           description: User successfully created
