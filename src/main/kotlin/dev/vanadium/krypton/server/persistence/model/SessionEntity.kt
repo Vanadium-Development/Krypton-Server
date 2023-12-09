@@ -6,7 +6,6 @@ import org.springframework.data.annotation.Transient
 import org.springframework.data.domain.Persistable
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
-import java.net.InetAddress
 import java.time.Duration
 import java.time.Instant
 import java.util.UUID
@@ -34,14 +33,6 @@ class SessionEntity : Persistable<String> {
     @Column("user_id")
     lateinit var userId: UUID
 
-    /**
-     * Specifies whether the current session token was already successfully used.
-     * If this is the case, it implies that the client was successfully able to decrypt the
-     * session token and use it for authorization
-     */
-    @Column("authorized")
-    var authorized: Boolean = false
-
     override fun getId(): String {
         return token
     }
@@ -59,10 +50,6 @@ class SessionEntity : Persistable<String> {
 
     override fun isNew(): Boolean {
         return this.new
-    }
-
-    fun authorize() {
-        this.authorized = true
     }
 
 }
