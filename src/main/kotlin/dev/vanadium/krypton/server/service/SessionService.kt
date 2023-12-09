@@ -1,20 +1,18 @@
 package dev.vanadium.krypton.server.service
 
 import dev.vanadium.krypton.server.persistence.dao.SessionDao
+import dev.vanadium.krypton.server.persistence.dao.UserDao
 import dev.vanadium.krypton.server.persistence.model.SessionEntity
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.net.InetAddress
-import java.util.Base64
-import java.util.UUID
+import java.util.*
 import kotlin.random.Random
 
 @Service
 class SessionService(
-    private var sessionDao: SessionDao
-){
-
-
+    private var sessionDao: SessionDao,
+    private var userDao: UserDao,
+) {
     /**
      * Creates a new session for the given user.
      *
@@ -46,4 +44,5 @@ class SessionService(
 
         return Base64.getEncoder().encodeToString(bytes)
     }
+
 }

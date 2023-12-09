@@ -6,7 +6,7 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 
 @Table("user", schema = "krypton_server")
 class UserEntity {
@@ -24,8 +24,8 @@ class UserEntity {
     @Column("username")
     lateinit var username: String
 
-    @Column("password")
-    lateinit var password: String
+    @Column("pub_key")
+    lateinit var pubKey: String
 
     @Column("admin")
     var admin: Boolean = false
@@ -39,8 +39,6 @@ class UserEntity {
 
     @Column("deleted_at")
     var deletedAt: Instant? = null
-
-
 
     fun toUserDto(): User {
         return User(this.id, this.firstname, this.lastname, this.username, this.admin)

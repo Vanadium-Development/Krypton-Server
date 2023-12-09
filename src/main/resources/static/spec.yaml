@@ -12,13 +12,13 @@ servers:
     description: Krypton Develop
 
 security:
-  - token: []
+  - token: [ ]
 
 paths:
   /user:
     get:
       operationId: getUsers
-      tags: [User]
+      tags: [ User ]
       summary: "Query users"
       description: "This endpoint is used to query users by name filtering and pagination. If the name query is not 
       provided, it will query all users."
@@ -47,7 +47,7 @@ paths:
                   $ref: "#/components/schemas/user"
     post:
       operationId: createUser
-      tags: [User]
+      tags: [ User ]
       summary: "Create a user"
       description: "This endpoint is used to create a user and is only available"
       requestBody:
@@ -55,7 +55,7 @@ paths:
         content:
           application/json:
             schema:
-              required: [firstname, lastname, username, password]
+              required: [ firstname, lastname, username, pubKey ]
               properties:
                 firstname:
                   type: string
@@ -63,7 +63,7 @@ paths:
                   type: string
                 username:
                   type: string
-                password:
+                pubKey:
                   type: string
       responses:
         200:
@@ -74,41 +74,39 @@ paths:
                 $ref: "#/components/schemas/statusResponse"
   /auth/login:
     post:
-      security: []
+      security: [ ]
       operationId: login
-      tags: [Authentication]
+      tags: [ Authentication ]
       summary: Login
-      description: This endpoint takes credentials and returns a session for a user
+      description: This endpoint takes the username and returns a token encrypted via the public key
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              required: [username, password]
+              required: [ username ]
               properties:
                 username:
                   type: string
-                password:
-                  type: string
       responses:
         200:
-          description: Login was successful
+          description: Username is valid - returning encrypted token
           content:
             application/json:
               schema:
-                required: [token]
+                required: [ token ]
                 properties:
                   token:
                     type: string
         401:
-          description: Invalid credentials
+          description: Invalid username
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
   /me:
     get:
-      tags: [Me]
+      tags: [ Me ]
       operationId: getOwnUser
       summary: Get logged in user
       description: This endpoint returns information of the current logged in user
@@ -130,7 +128,7 @@ components:
     statusResponse:
       description: Generic response with one status field
       type: object
-      required: [status]
+      required: [ status ]
       properties:
         status:
           type: string
@@ -138,7 +136,7 @@ components:
     error:
       description: An error
       type: object
-      required: [correlationId, exception, status, statusCode, message]
+      required: [ correlationId, exception, status, statusCode, message ]
       properties:
         correlationId:
           type: string
@@ -155,7 +153,7 @@ components:
     user:
       description: A user entity
       type: object
-      required: [id, firstname, lastname, username, admin]
+      required: [ id, firstname, lastname, username, admin ]
       properties:
         id:
           type: string

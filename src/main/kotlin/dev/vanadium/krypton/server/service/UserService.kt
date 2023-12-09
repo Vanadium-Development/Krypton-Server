@@ -4,13 +4,54 @@ import dev.vanadium.krypton.server.error.ConflictException
 import dev.vanadium.krypton.server.error.UnauthorizedException
 import dev.vanadium.krypton.server.persistence.dao.UserDao
 import dev.vanadium.krypton.server.persistence.model.UserEntity
+import jakarta.annotation.PostConstruct
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
-class UserService(private val userDao: UserDao, private val passwordEncoder: PasswordEncoder, private val sessionService: SessionService) {
+class UserService(
+    private val userDao: UserDao,
+    private val passwordEncoder: PasswordEncoder,
+    private val sessionService: SessionService,
+    private val encryptionService: EncryptionService
+) {
 
+    // TODO Remove this for production builds
+    /**
+     * Private key for testing:
+     *
+     * -----BEGIN RSA PRIVATE KEY-----
+     * MIICXQIBAAKBgQCKYMlX2WV6hGJpeQMNMpTM66zrDUpo/2J75tzjuqqSZDfBWwM5
+     * adk6M/e4UYEC2Y/uWDKldqu+OrePmOPNZEV3oExtai/yIC0dfvYWDN2zkYoPv0++
+     * jsYgJenZKLFDYpKM8QQ5MDZf6+MQQV1to3V5+MbE7fsRh5WIzTqsEXtB1wIDAQAB
+     * AoGBAIFqO2O5obqPjSpvTndNUvTDhRjfeTPxhL20D+m7bkMzDyH6aG2NnOdeKtNr
+     * BmkP6BhUzCkLb1udtobJymMQ4BW3ueXDlwKMGz63nKoD3IBKXBV787CBarD2NBda
+     * BzQkdF3PFkD8PVnwCtjP0fG2ufXdsNPZb9jGdhFe2NYN7GmBAkEA36ymWX0rlSkq
+     * ZDh8zh4fXQNxGqvRvtZh28ANqekFA0b3jcdeQhnG+vBZjM7+xgJsHToBpy9Mi40k
+     * AJbKVpwuMQJBAJ5gZu1tRBDUjpm3OfroZK3EL3EYOE5gtJzXY9Hr/MQAnDTTXhGn
+     * fVXnmZuATy+ZQqclTqLaMeuuelSs4g11xocCQB1Z8ppbqpRwSnfMUdRab5MtGHJ/
+     * iY6ZY04K7cAWK+o6LdIVD3FtIIddcuLfZt9lAfrz2bOuqUTGyKqrHvIunIECQGWQ
+     * lPE13Syd40UYh4osdkQpR/NTAOjig3EBf/YjTFm1unb2BaF0s5/fglaClkWEF4Zx
+     * Gli9bL4jije7Fsxi9wkCQQCiZTOm662Isc1Y2nppJN0XCTlw4UUWawrlD1HdYfss
+     * JRfqKHV9il9ZHg7r4HPiEABxEp37znUgVs6/wyaeWt96
+     * -----END RSA PRIVATE KEY-----
+     */
+    @PostConstruct
+    @Transactional
+    fun createAdminUser() {
+        if (userDao.getUserByUsername("admin") == null) {
+            createUser(
+                "admin", "admin", "admin", "-----BEGIN PUBLIC KEY-----\n" +
+                        "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCKYMlX2WV6hGJpeQMNMpTM66zr\n" +
+                        "DUpo/2J75tzjuqqSZDfBWwM5adk6M/e4UYEC2Y/uWDKldqu+OrePmOPNZEV3oExt\n" +
+                        "ai/yIC0dfvYWDN2zkYoPv0++jsYgJenZKLFDYpKM8QQ5MDZf6+MQQV1to3V5+MbE\n" +
+                        "7fsRh5WIzTqsEXtB1wIDAQAB\n" +
+                        "-----END PUBLIC KEY-----"
+            )
+            sessionService.createSession(userDao.getUserByUsername("admin")!!.id)
+        }
+    }
 
     /**
      * Creates a new user and saves it in the database.
@@ -18,27 +59,26 @@ class UserService(private val userDao: UserDao, private val passwordEncoder: Pas
      * @param firstname the firstname of the user
      * @param lastname the lastname of the user
      * @param username the username of the user
-     * @param password the password of the user
+     * @param auth the password of the user
      * @return the created UserEntity object
      * @throws ConflictException if the username already exists in the database
      */
     @Transactional
-    fun createUser(firstname: String, lastname: String, username: String, password: String): UserEntity {
+    fun createUser(firstname: String, lastname: String, username: String, pubKey: String): UserEntity {
 
-        if(userDao.usernameExists(username))
+        if (userDao.usernameExists(username))
             throw ConflictException("Username already exists.")
 
         var entity = UserEntity()
         entity.firstname = firstname
         entity.lastname = lastname
         entity.username = username
-        entity.password = passwordEncoder.encode(password)
+        entity.pubKey = pubKey.replace("\n", "").replace("-----BEGIN PUBLIC KEY-----", "").replace("-----END PUBLIC KEY-----", "")
 
         entity = userDao.save(entity)
 
         return entity
     }
-
 
     /**
      * Authenticates a user by verifying their username and password.
@@ -50,19 +90,17 @@ class UserService(private val userDao: UserDao, private val passwordEncoder: Pas
      *
      * @throws UnauthorizedException if the username or password is incorrect, or if the user is deleted.
      */
-    fun login(username: String, password: String): String {
-        val unauthorizedException = UnauthorizedException("Username or password incorrect.")
+    fun login(username: String): String {
+        val unauthorizedException = UnauthorizedException("Username incorrect.")
         val user = userDao.getUserByUsername(username) ?: throw unauthorizedException
 
-        if(user.deleted)
-            throw unauthorizedException
-
-        if(!passwordEncoder.matches(password, user.password))
+        if (user.deleted)
             throw unauthorizedException
 
         val session = sessionService.createSession(user.id)
+        val encryptedToken = encryptionService.encryptToken(user.pubKey, session.token)
 
-        return session.token
+        return encryptedToken
     }
 
     /**
@@ -74,9 +112,10 @@ class UserService(private val userDao: UserDao, private val passwordEncoder: Pas
      * @return A paginated list of user entities filtered by the given username.
      */
     fun filterUsersByUsernamePaginated(username: String?, page: Int): List<UserEntity> {
-        if(username != null) {
+        if (username != null) {
             return userDao.filterByUsernamePaginated(page, username).filter { !it.deleted }
         }
+
         return userDao.findAllPaginated(page).filter { !it.deleted }
     }
 }

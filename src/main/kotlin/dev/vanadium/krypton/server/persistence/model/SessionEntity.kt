@@ -6,10 +6,9 @@ import org.springframework.data.annotation.Transient
 import org.springframework.data.domain.Persistable
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
-import java.net.InetAddress
 import java.time.Duration
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 
 @Table("session", schema = "krypton_server")
 class SessionEntity : Persistable<String> {
@@ -28,12 +27,12 @@ class SessionEntity : Persistable<String> {
     @Column("expires_at")
     var expiresAt: Instant? = Instant.now() + Duration.ofDays(7)
 
-
     @Column("invalidate")
     var invalidate: Boolean = false
 
     @Column("user_id")
     lateinit var userId: UUID
+
     override fun getId(): String {
         return token
     }
@@ -52,4 +51,5 @@ class SessionEntity : Persistable<String> {
     override fun isNew(): Boolean {
         return this.new
     }
+
 }
