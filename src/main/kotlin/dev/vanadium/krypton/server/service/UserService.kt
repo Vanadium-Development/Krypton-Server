@@ -4,13 +4,28 @@ import dev.vanadium.krypton.server.error.ConflictException
 import dev.vanadium.krypton.server.error.UnauthorizedException
 import dev.vanadium.krypton.server.persistence.dao.UserDao
 import dev.vanadium.krypton.server.persistence.model.UserEntity
+import jakarta.annotation.PostConstruct
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
-class UserService(private val userDao: UserDao, private val passwordEncoder: PasswordEncoder, private val sessionService: SessionService) {
+class UserService(
+    private val userDao: UserDao,
+    private val passwordEncoder: PasswordEncoder,
+    private val sessionService: SessionService,
+    private val encryptionService: EncryptionService
+) {
 
+    // TODO Remove this for production builds
+    @PostConstruct
+    @Transactional
+    fun createAdminUser() {
+        if (userDao.getUserByUsername("admin") == null) {
+            createUser("admin", "admin", "admin", "lfgowieiugfgonib")
+            sessionService.createSession(userDao.getUserByUsername("admin")!!.id)
+        }
+    }
 
     /**
      * Creates a new user and saves it in the database.
@@ -25,7 +40,7 @@ class UserService(private val userDao: UserDao, private val passwordEncoder: Pas
     @Transactional
     fun createUser(firstname: String, lastname: String, username: String, auth: String): UserEntity {
 
-        if(userDao.usernameExists(username))
+        if (userDao.usernameExists(username))
             throw ConflictException("Username already exists.")
 
         var entity = UserEntity()
@@ -39,7 +54,6 @@ class UserService(private val userDao: UserDao, private val passwordEncoder: Pas
         return entity
     }
 
-
     /**
      * Authenticates a user by verifying their username and password.
      *
@@ -50,20 +64,17 @@ class UserService(private val userDao: UserDao, private val passwordEncoder: Pas
      *
      * @throws UnauthorizedException if the username or password is incorrect, or if the user is deleted.
      */
-    fun login(username: String, password: String): String {
-        val unauthorizedException = UnauthorizedException("Username or password incorrect.")
+    fun login(username: String): String {
+        val unauthorizedException = UnauthorizedException("Username incorrect.")
         val user = userDao.getUserByUsername(username) ?: throw unauthorizedException
 
-        if(user.deleted)
-            throw unauthorizedException
-
-        // TODO
-        if(!passwordEncoder.matches(password, user.pubKey))
+        if (user.deleted)
             throw unauthorizedException
 
         val session = sessionService.createSession(user.id)
+        val encryptedToken = encryptionService.encryptToken(user.pubKey, session.token)
 
-        return session.token
+        return encryptedToken
     }
 
     /**
@@ -75,9 +86,10 @@ class UserService(private val userDao: UserDao, private val passwordEncoder: Pas
      * @return A paginated list of user entities filtered by the given username.
      */
     fun filterUsersByUsernamePaginated(username: String?, page: Int): List<UserEntity> {
-        if(username != null) {
+        if (username != null) {
             return userDao.filterByUsernamePaginated(page, username).filter { !it.deleted }
         }
+
         return userDao.findAllPaginated(page).filter { !it.deleted }
     }
 }

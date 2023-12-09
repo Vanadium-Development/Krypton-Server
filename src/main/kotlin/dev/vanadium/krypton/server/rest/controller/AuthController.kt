@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController
 class AuthController(private val userService: UserService) : AuthApi {
 
     override fun login(loginRequest: LoginRequest): ResponseEntity<Login200Response> {
-        val token = userService.login(loginRequest.username, loginRequest.password)
+        val token = userService.login(loginRequest.username)
 
         return ResponseEntity.ok(Login200Response(token))
     }

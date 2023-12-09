@@ -24,7 +24,7 @@ class UserEntity {
     @Column("username")
     lateinit var username: String
 
-    @Column("pubKey")
+    @Column("pub_key")
     lateinit var pubKey: String
 
     @Column("admin")

@@ -78,21 +78,19 @@ paths:
       operationId: login
       tags: [Authentication]
       summary: Login
-      description: This endpoint takes credentials and returns a session for a user
+      description: This endpoint takes the username and returns a token encrypted via the public key
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              required: [username, password]
+              required: [username]
               properties:
                 username:
                   type: string
-                password:
-                  type: string
       responses:
         200:
-          description: Login was successful
+          description: Username is valid - returning encrypted token
           content:
             application/json:
               schema:
@@ -101,7 +99,7 @@ paths:
                   token:
                     type: string
         401:
-          description: Invalid credentials
+          description: Invalid username
           content:
             application/json:
               schema:
