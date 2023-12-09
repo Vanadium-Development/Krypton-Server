@@ -3,6 +3,7 @@ package dev.vanadium.krypton.server.service
 import dev.vanadium.krypton.server.error.ConflictException
 import dev.vanadium.krypton.server.error.UnauthorizedException
 import dev.vanadium.krypton.server.persistence.dao.UserDao
+import dev.vanadium.krypton.server.persistence.model.UserAuthMethod
 import dev.vanadium.krypton.server.persistence.model.UserEntity
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -18,12 +19,12 @@ class UserService(private val userDao: UserDao, private val passwordEncoder: Pas
      * @param firstname the firstname of the user
      * @param lastname the lastname of the user
      * @param username the username of the user
-     * @param password the password of the user
+     * @param auth the password of the user
      * @return the created UserEntity object
      * @throws ConflictException if the username already exists in the database
      */
     @Transactional
-    fun createUser(firstname: String, lastname: String, username: String, password: String): UserEntity {
+    fun createUser(firstname: String, lastname: String, username: String, authType: UserAuthMethod, auth: String): UserEntity {
 
         if(userDao.usernameExists(username))
             throw ConflictException("Username already exists.")
@@ -32,7 +33,8 @@ class UserService(private val userDao: UserDao, private val passwordEncoder: Pas
         entity.firstname = firstname
         entity.lastname = lastname
         entity.username = username
-        entity.password = passwordEncoder.encode(password)
+        entity.authMethod = authType
+        entity.auth = passwordEncoder.encode(auth)
 
         entity = userDao.save(entity)
 
@@ -57,7 +59,7 @@ class UserService(private val userDao: UserDao, private val passwordEncoder: Pas
         if(user.deleted)
             throw unauthorizedException
 
-        if(!passwordEncoder.matches(password, user.password))
+        if(!passwordEncoder.matches(password, user.auth))
             throw unauthorizedException
 
         val session = sessionService.createSession(user.id)

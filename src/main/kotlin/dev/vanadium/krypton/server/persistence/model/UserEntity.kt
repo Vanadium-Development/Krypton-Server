@@ -24,8 +24,11 @@ class UserEntity {
     @Column("username")
     lateinit var username: String
 
-    @Column("password")
-    lateinit var password: String
+    @Column("auth")
+    lateinit var auth: String
+
+    @Column("authMethod")
+    lateinit var authMethod: UserAuthMethod
 
     @Column("admin")
     var admin: Boolean = false
