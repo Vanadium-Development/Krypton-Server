@@ -8,6 +8,7 @@ import jakarta.annotation.PostConstruct
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.Base64
 
 @Service
 class UserService(
@@ -22,7 +23,10 @@ class UserService(
     @Transactional
     fun createAdminUser() {
         if (userDao.getUserByUsername("admin") == null) {
-            createUser("admin", "admin", "admin", "lfgowieiugfgonib")
+            createUser("admin", "admin", "admin", "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCvLSDsD8lqEjsoJlioP34xxCks\n" +
+                    "bFQDAZ8Ae9tJ1/RAwLOON9ki5NtgV271XzyGI2L2gyjQnLC7B9agzGe9aCGlQ+2R\n" +
+                    "KPtBWHBMmhIVb/8vHGe7e9ZJyhHTC14E6SDYBoemGDJFcOm0tCYMkjOGOlBGjTDi\n" +
+                    "brm+cWg7QYQl0SviKwIDAQAB")
             sessionService.createSession(userDao.getUserByUsername("admin")!!.id)
         }
     }
@@ -38,7 +42,7 @@ class UserService(
      * @throws ConflictException if the username already exists in the database
      */
     @Transactional
-    fun createUser(firstname: String, lastname: String, username: String, auth: String): UserEntity {
+    fun createUser(firstname: String, lastname: String, username: String, pubKey: String): UserEntity {
 
         if (userDao.usernameExists(username))
             throw ConflictException("Username already exists.")
@@ -47,7 +51,7 @@ class UserService(
         entity.firstname = firstname
         entity.lastname = lastname
         entity.username = username
-        entity.pubKey = passwordEncoder.encode(auth)
+        entity.pubKey = pubKey.replace("\n", "")
 
         entity = userDao.save(entity)
 
