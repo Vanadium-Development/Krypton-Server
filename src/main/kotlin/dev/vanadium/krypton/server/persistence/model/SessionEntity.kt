@@ -8,7 +8,7 @@ import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
 import java.time.Duration
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 
 @Table("session", schema = "krypton_server")
 class SessionEntity : Persistable<String> {

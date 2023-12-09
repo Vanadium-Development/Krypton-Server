@@ -3,7 +3,6 @@ package dev.vanadium.krypton.server.service
 import dev.vanadium.krypton.server.persistence.dao.SessionDao
 import dev.vanadium.krypton.server.persistence.dao.UserDao
 import dev.vanadium.krypton.server.persistence.model.SessionEntity
-import jakarta.annotation.PostConstruct
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.*

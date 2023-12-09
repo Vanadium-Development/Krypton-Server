@@ -16,7 +16,7 @@ class TokenFilter(private var sessionDao: SessionDao) : OncePerRequestFilter() {
     ) {
         val header = request.getHeader("Authorization")
 
-        if(header == null) {
+        if (header == null) {
             sendUnauthorized(response)
             return
         }
@@ -32,7 +32,7 @@ class TokenFilter(private var sessionDao: SessionDao) : OncePerRequestFilter() {
 
         val user = sessionDao.getUserBySessionToken(token, false)
 
-        if(user == null) {
+        if (user == null) {
             sendUnauthorized(response)
             return
         }
