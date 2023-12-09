@@ -37,10 +37,6 @@ class TokenFilter(private var sessionDao: SessionDao) : OncePerRequestFilter() {
             return
         }
 
-        // Flag the session as authorized. Note that this flag is not really necessary for the authentication process,
-        // yet we'd still like to keep track of whether the user was able to use the token to authenticate
-        val session = sessionDao.getSessionEntityByToken(token)!!
-
         SecurityContextHolder.getContext().authentication = KryptonAuthentication(user, token)
         filterChain.doFilter(request, response)
     }
