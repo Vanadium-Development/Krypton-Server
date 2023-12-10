@@ -16,7 +16,7 @@ class FieldService(val fieldDao: FieldDao) {
         credentialId: UUID
     ): FieldEntity {
         val field = FieldEntity()
-        field.type = type
+        field.type = type.toString()
         field.title = title
         field.value = value
         field.credId = credentialId

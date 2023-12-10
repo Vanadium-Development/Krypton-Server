@@ -1,6 +1,5 @@
 package dev.vanadium.krypton.server.persistence.model
 
-import dev.vanadium.krypton.server.openapi.model.CreateCredentialRequestBodyInner
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
@@ -13,8 +12,8 @@ class FieldEntity {
     @Column("id")
     lateinit var id: UUID
 
-    @Column("field_type")
-    lateinit var type: CreateCredentialRequestBodyInner.FieldType
+    @Column("type")
+    lateinit var type: String
 
     @Column("title")
     lateinit var title: String
