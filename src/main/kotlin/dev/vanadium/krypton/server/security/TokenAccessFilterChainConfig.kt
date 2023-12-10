@@ -12,8 +12,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @Configuration
 class TokenAccessFilterChainConfig(private var sessionDao: SessionDao) {
-
-
     @Bean
     fun tokenAccessFilterChain(http: HttpSecurity): SecurityFilterChain {
 
