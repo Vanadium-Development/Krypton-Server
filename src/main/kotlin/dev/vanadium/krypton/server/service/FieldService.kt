@@ -1,6 +1,6 @@
 package dev.vanadium.krypton.server.service
 
-import dev.vanadium.krypton.server.openapi.model.CreateCredentialRequestBodyInner
+import dev.vanadium.krypton.server.openapi.model.Credential
 import dev.vanadium.krypton.server.persistence.dao.FieldDao
 import dev.vanadium.krypton.server.persistence.model.FieldEntity
 import org.springframework.stereotype.Service
@@ -10,7 +10,7 @@ import java.util.*
 class FieldService(val fieldDao: FieldDao) {
 
     fun createField(
-        type: CreateCredentialRequestBodyInner.FieldType,
+        type: Credential.FieldType,
         title: String,
         value: String,
         credentialId: UUID
