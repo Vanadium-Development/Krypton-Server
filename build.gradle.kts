@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.com.google.common.io.Files
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -52,7 +53,7 @@ dependencies {
 
 openApiGenerate {
     generatorName = "kotlin-spring"
-    inputSpec = "$rootDir/src/main/resources/static/spec.yaml"
+    inputSpec = "submodule/openapi/spec.yaml"
     invokerPackage = "dev.vanadium.krypton.server"
     apiPackage = "dev.vanadium.krypton.server.openapi.controllers"
     modelPackage = "dev.vanadium.krypton.server.openapi.model"
@@ -70,6 +71,8 @@ tasks.withType<KotlinCompile> {
     }
 
 }
+
+
 tasks.compileKotlin {
     dependsOn("openApiGenerate")
 }
