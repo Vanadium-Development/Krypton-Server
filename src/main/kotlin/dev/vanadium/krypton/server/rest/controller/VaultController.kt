@@ -17,7 +17,7 @@ class VaultController(val vaultService: VaultService) : VaultApi {
         return ResponseEntity.ok(StatusResponse("Vault created."))
     }
 
-    override fun getVault(vaultId: UUID): ResponseEntity<Vault> {
-
-    }
+//    override fun getVault(vaultId: UUID): ResponseEntity<Vault> {
+//
+//    }
 }

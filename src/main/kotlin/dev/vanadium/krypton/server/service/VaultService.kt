@@ -23,14 +23,14 @@ class VaultService(val vaultDao: VaultDao, val fieldDao: FieldDao) {
         vaultDao.save(vaultEntity)
     }
 
-    fun getVault(vaultId: UUID): Vault {
-        val vault = vaultDao.findById(vaultId)
-
-        if (!vault.isPresent)
-            throw NotFoundException("Could not find vault")
-
-
-
-    }
+//    fun getVault(vaultId: UUID): Vault {
+//        val vault = vaultDao.findById(vaultId)
+//
+//        if (!vault.isPresent)
+//            throw NotFoundException("Could not find vault")
+//
+//
+//
+//    }
 
 }
