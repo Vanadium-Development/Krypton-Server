@@ -21,8 +21,4 @@ class VaultEntity {
     @Column("user_id")
     lateinit var user_id: UUID
 
-    fun toVaultDto() {
-
-    }
-
 }
