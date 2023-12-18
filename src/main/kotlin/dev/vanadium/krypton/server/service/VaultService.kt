@@ -18,7 +18,7 @@ class VaultService(val vaultDao: VaultDao, val fieldDao: FieldDao, val credentia
         val vaultEntity = VaultEntity()
         vaultEntity.title = createVaultRequest.title
         vaultEntity.description = createVaultRequest.description
-        vaultEntity.user_id = (SecurityContextHolder.getContext().authentication.principal as UserEntity).id
+        vaultEntity.userId = (SecurityContextHolder.getContext().authentication.principal as UserEntity).id
 
         vaultDao.save(vaultEntity)
     }
@@ -43,7 +43,7 @@ class VaultService(val vaultDao: VaultDao, val fieldDao: FieldDao, val credentia
                 fieldDtos.add(CredentialField(FieldType.valueOf(field.type), field.title, field.value))
             }
 
-            credentialDtos.add(Credential(cred.title, cred.vault_id, fields.map { field ->
+            credentialDtos.add(Credential(cred.title, cred.vaultId, fields.map { field ->
                 CredentialField(FieldType.valueOf(field.type), field.title, field.value)
             }))
         }

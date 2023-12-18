@@ -9,13 +9,13 @@ import java.util.UUID
 @Service
 class CredentialService(val credentialDao: CredentialDao, val vaultDao: VaultDao) {
 
-    fun createCredential(title: String, vault_id: UUID): CredentialEntity? {
-        if (vaultDao.findById(vault_id).isEmpty)
+    fun createCredential(title: String, vaultId: UUID): CredentialEntity? {
+        if (vaultDao.findById(vaultId).isEmpty)
             return null
 
         val credential = CredentialEntity()
         credential.title = title
-        credential.vault_id = vault_id
+        credential.vaultId = vaultId
 
         credentialDao.save(credential)
 

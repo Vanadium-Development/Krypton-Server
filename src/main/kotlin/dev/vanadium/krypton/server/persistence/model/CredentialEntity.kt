@@ -16,6 +16,6 @@ class CredentialEntity {
     lateinit var title: String
 
     @Column("vault_id")
-    lateinit var vault_id: UUID
+    lateinit var vaultId: UUID
 
 }

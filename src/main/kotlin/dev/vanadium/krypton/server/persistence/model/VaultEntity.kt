@@ -19,6 +19,6 @@ class VaultEntity {
     lateinit var description: String
 
     @Column("user_id")
-    lateinit var user_id: UUID
+    lateinit var userId: UUID
 
 }
