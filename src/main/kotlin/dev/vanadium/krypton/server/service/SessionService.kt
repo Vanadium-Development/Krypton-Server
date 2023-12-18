@@ -17,7 +17,6 @@ class SessionService(
      * Creates a new session for the given user.
      *
      * @param user The UUID of the user for whom the session is being created.
-     *
      * @return The created SessionEntity object.
      */
     @Transactional

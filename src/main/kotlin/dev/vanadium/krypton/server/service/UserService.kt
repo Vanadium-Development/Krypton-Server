@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class UserService(
     private val userDao: UserDao,
-    private val passwordEncoder: PasswordEncoder,
     private val sessionService: SessionService,
     private val encryptionService: EncryptionService
 ) {
