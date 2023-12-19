@@ -1,6 +1,5 @@
 package dev.vanadium.krypton.server.persistence.dao
 
-import dev.vanadium.krypton.server.openapi.model.CredentialField
 import dev.vanadium.krypton.server.persistence.model.FieldEntity
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.repository.CrudRepository

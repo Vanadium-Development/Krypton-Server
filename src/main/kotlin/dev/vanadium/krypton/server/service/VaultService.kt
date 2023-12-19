@@ -1,5 +1,6 @@
 package dev.vanadium.krypton.server.service
 
+import dev.vanadium.krypton.server.error.NotFoundException
 import dev.vanadium.krypton.server.openapi.model.*
 import dev.vanadium.krypton.server.persistence.dao.CredentialDao
 import dev.vanadium.krypton.server.persistence.dao.FieldDao
@@ -14,10 +15,10 @@ import java.util.*
 @Service
 class VaultService(val vaultDao: VaultDao, val fieldDao: FieldDao, val credentialDao: CredentialDao) {
 
-    fun createVault(createVaultRequest: CreateVaultRequest) {
+    fun createVault(vault: Vault) {
         val vaultEntity = VaultEntity()
-        vaultEntity.title = createVaultRequest.title
-        vaultEntity.description = createVaultRequest.description
+        vaultEntity.title = vault.title
+        vaultEntity.description = vault.description
         vaultEntity.userId = (SecurityContextHolder.getContext().authentication.principal as UserEntity).id
 
         vaultDao.save(vaultEntity)
@@ -45,10 +46,22 @@ class VaultService(val vaultDao: VaultDao, val fieldDao: FieldDao, val credentia
 
             credentialDtos.add(Credential(cred.title, cred.vaultId, fields.map { field ->
                 CredentialField(FieldType.valueOf(field.type), field.title, field.value)
-            }))
+            }, cred.id))
         }
 
         return Optional.of(VaultResponse(vaultUUID, credentialDtos))
+    }
+
+    fun updateVault(vaultUpdate: VaultUpdate) {
+        val entity = vaultDao.findById(vaultUpdate.id)
+
+        if (!entity.isPresent) throw NotFoundException("Could not find the requested vault")
+
+        val presentEntity = entity.get()
+        presentEntity.title = vaultUpdate.title ?: presentEntity.title
+        presentEntity.description = vaultUpdate.description ?: presentEntity.description
+
+        vaultDao.save(presentEntity)
     }
 
 }

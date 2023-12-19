@@ -1,7 +1,8 @@
 package dev.vanadium.krypton.server.service
 
-import dev.vanadium.krypton.server.openapi.model.Credential
+import dev.vanadium.krypton.server.error.NotFoundException
 import dev.vanadium.krypton.server.openapi.model.FieldType
+import dev.vanadium.krypton.server.openapi.model.FieldUpdate
 import dev.vanadium.krypton.server.persistence.dao.FieldDao
 import dev.vanadium.krypton.server.persistence.model.FieldEntity
 import org.springframework.stereotype.Service
@@ -11,10 +12,7 @@ import java.util.*
 class FieldService(val fieldDao: FieldDao) {
 
     fun createField(
-        type: FieldType,
-        title: String,
-        value: String,
-        credentialId: UUID
+        type: FieldType, title: String, value: String, credentialId: UUID
     ): FieldEntity {
         val field = FieldEntity()
         field.type = type.toString()
@@ -25,6 +23,19 @@ class FieldService(val fieldDao: FieldDao) {
         fieldDao.save(field)
 
         return field
+    }
+
+    fun updateField(fieldUpdate: FieldUpdate) {
+        val entity = fieldDao.findById(fieldUpdate.id)
+
+        if (!entity.isPresent) throw NotFoundException("Could not find the requested field")
+
+        val presentEntity = entity.get()
+        presentEntity.title = fieldUpdate.title ?: presentEntity.title
+        presentEntity.type = (fieldUpdate.fieldType ?: presentEntity.type).toString()
+        presentEntity.value = fieldUpdate.value ?: presentEntity.value
+
+        fieldDao.save(presentEntity)
     }
 
 }

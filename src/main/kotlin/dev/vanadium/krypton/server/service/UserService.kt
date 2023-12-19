@@ -1,11 +1,14 @@
 package dev.vanadium.krypton.server.service
 
 import dev.vanadium.krypton.server.error.ConflictException
+import dev.vanadium.krypton.server.error.NotFoundException
 import dev.vanadium.krypton.server.error.UnauthorizedException
+import dev.vanadium.krypton.server.openapi.model.UserUpdate
 import dev.vanadium.krypton.server.persistence.dao.UserDao
 import dev.vanadium.krypton.server.persistence.model.UserEntity
+import dev.vanadium.krypton.server.security.KryptonAuthentication
 import jakarta.annotation.PostConstruct
-import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -72,7 +75,8 @@ class UserService(
         entity.firstname = firstname
         entity.lastname = lastname
         entity.username = username
-        entity.pubKey = pubKey.replace("\n", "").replace("-----BEGIN PUBLIC KEY-----", "").replace("-----END PUBLIC KEY-----", "")
+        entity.pubKey =
+            pubKey.replace("\n", "").replace("-----BEGIN PUBLIC KEY-----", "").replace("-----END PUBLIC KEY-----", "")
 
         entity = userDao.save(entity)
 
@@ -117,4 +121,27 @@ class UserService(
 
         return userDao.findAllPaginated(page).filter { !it.deleted }
     }
+
+    fun updateUser(userUpdate: UserUpdate) {
+        val authUser = (SecurityContextHolder.getContext().authentication as KryptonAuthentication).user
+        if (authUser.id != userUpdate.id && !authUser.admin)
+            throw UnauthorizedException("Cannot update another user without administrator status")
+
+        val entity = userDao.findById(userUpdate.id)
+
+        if (!entity.isPresent) throw NotFoundException("Could not find the requested user")
+
+        val presentEntity = entity.get()
+        presentEntity.firstname = userUpdate.firstName ?: presentEntity.firstname
+        presentEntity.lastname = userUpdate.lastName ?: presentEntity.lastname
+        presentEntity.username = userUpdate.username ?: presentEntity.username
+
+        if (!authUser.admin && userUpdate.admin != null)
+            throw UnauthorizedException("Cannot promote/demote user to and from the administrative role without being an administrator.")
+
+        presentEntity.admin = userUpdate.admin ?: presentEntity.admin
+        
+        userDao.save(presentEntity)
+    }
+
 }
