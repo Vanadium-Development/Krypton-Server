@@ -1,3 +1,5 @@
+![](repo/logo.png)
+
 # Krypton-Server
 
 The backend of the Krypton password manager
