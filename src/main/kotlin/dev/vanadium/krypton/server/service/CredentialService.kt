@@ -13,7 +13,7 @@ import java.util.*
 @Service
 class CredentialService(val credentialDao: CredentialDao, val vaultDao: VaultDao) {
 
-    fun createCredential(title: String, vaultId: UUID): CredentialEntity? {
+    fun createCredential(title: String, vaultId: UUID): CredentialEntity {
         val vault = vaultDao.findById(vaultId)
 
         if (vault.isEmpty)

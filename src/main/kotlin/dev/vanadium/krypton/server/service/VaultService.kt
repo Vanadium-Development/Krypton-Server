@@ -2,6 +2,7 @@ package dev.vanadium.krypton.server.service
 
 import dev.vanadium.krypton.server.authorizedUser
 import dev.vanadium.krypton.server.error.NotFoundException
+import dev.vanadium.krypton.server.error.UnauthorizedException
 import dev.vanadium.krypton.server.openapi.model.*
 import dev.vanadium.krypton.server.persistence.dao.CredentialDao
 import dev.vanadium.krypton.server.persistence.dao.FieldDao
@@ -27,11 +28,13 @@ class VaultService(val vaultDao: VaultDao, val fieldDao: FieldDao, val credentia
     }
 
     fun aggregateCredentials(vaultUUID: UUID): Optional<VaultResponse> {
+        val vault = vaultDao.findById(vaultUUID)
 
-        vaultDao.findByIdAndUserId(
-            vaultUUID,
-            authorizedUser().id
-        ) ?: return Optional.empty()
+        if (vault.isEmpty)
+            throw NotFoundException("Could not find the requested vault")
+
+        if (vault.get().userId != authorizedUser().id && !authorizedUser().admin)
+            throw UnauthorizedException("Admin status is required to get other user's vaults")
 
         val credentials = credentialDao.credentialsOf(vaultUUID)
 
