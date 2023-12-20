@@ -22,7 +22,7 @@ class CredentialController(val credentialService: CredentialService, val fieldSe
             fieldService.createField(field.fieldType, field.title, field.value, cred.id)
         }
 
-        return ResponseEntity.ok(StatusResponse("Credential created"))
+        return ResponseEntity.ok(StatusResponse("OK"))
     }
 
     override fun updateCredential(credentialUpdate: CredentialUpdate): ResponseEntity<StatusResponse> {
