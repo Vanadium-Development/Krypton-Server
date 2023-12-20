@@ -32,4 +32,10 @@ class VaultController(val vaultService: VaultService) : VaultApi {
         vaultService.updateVault(vaultUpdate)
         return ResponseEntity.ok(StatusResponse("Vault updated"))
     }
+
+    override fun deleteVault(vaultUUID: UUID): ResponseEntity<StatusResponse> {
+        vaultService.removeVault(vaultUUID)
+
+        return ResponseEntity.ok(StatusResponse("Vault deleted"))
+    }
 }

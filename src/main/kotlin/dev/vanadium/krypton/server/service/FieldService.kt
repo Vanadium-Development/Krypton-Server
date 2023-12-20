@@ -46,4 +46,19 @@ class FieldService(val fieldDao: FieldDao) {
         fieldDao.save(presentEntity)
     }
 
+    fun removeField(fieldUUID: UUID) {
+        val entity = fieldDao.findById(fieldUUID)
+
+        if (!entity.isPresent)
+            throw NotFoundException("Could not find the requested field")
+
+        val presentEntity = entity.get()
+
+        val user = (SecurityContextHolder.getContext().authentication as KryptonAuthentication).user
+        if (user.id != presentEntity.id && !user.admin)
+            throw UnauthorizedException("Admin status is required to delete another user's credential fields")
+
+        fieldDao.delete(presentEntity)
+    }
+
 }

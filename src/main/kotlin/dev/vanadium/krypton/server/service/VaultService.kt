@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-class VaultService(val vaultDao: VaultDao, val fieldDao: FieldDao, val credentialDao: CredentialDao) {
+class VaultService(val vaultDao: VaultDao, val fieldDao: FieldDao, val credentialDao: CredentialDao, val credentialService: CredentialService) {
 
     fun createVault(vault: Vault) {
         val vaultEntity = VaultEntity()
@@ -68,6 +68,30 @@ class VaultService(val vaultDao: VaultDao, val fieldDao: FieldDao, val credentia
         presentEntity.description = vaultUpdate.description ?: presentEntity.description
 
         vaultDao.save(presentEntity)
+    }
+
+    /**
+     * Note: This will cascade-delete all credentials and hence also all fields in the vault
+     */
+    fun removeVault(vaultUUID: UUID) {
+        val entity = vaultDao.findById(vaultUUID)
+
+        if (!entity.isPresent)
+            throw NotFoundException("Could not find the requested vault")
+
+        val presentEntity = entity.get()
+
+        val user = (SecurityContextHolder.getContext().authentication as KryptonAuthentication).user
+        if (user.id != presentEntity.id && !user.admin)
+            throw UnauthorizedException("Admin status is required to delete another user's vault")
+
+        // Delete cascade
+        val credentials = credentialDao.credentialsOf(vaultUUID)
+        credentials.forEach { cred ->
+            credentialService.removeCredential(cred.id)
+        }
+
+        vaultDao.delete(presentEntity)
     }
 
 }
