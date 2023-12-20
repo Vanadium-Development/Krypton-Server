@@ -1,6 +1,7 @@
 package dev.vanadium.krypton.server.service
 
 import dev.vanadium.krypton.server.error.NotFoundException
+import dev.vanadium.krypton.server.error.UnauthorizedException
 import dev.vanadium.krypton.server.openapi.model.*
 import dev.vanadium.krypton.server.persistence.dao.CredentialDao
 import dev.vanadium.krypton.server.persistence.dao.FieldDao
@@ -58,6 +59,11 @@ class VaultService(val vaultDao: VaultDao, val fieldDao: FieldDao, val credentia
         if (!entity.isPresent) throw NotFoundException("Could not find the requested vault")
 
         val presentEntity = entity.get()
+        val user = (SecurityContextHolder.getContext().authentication as KryptonAuthentication).user
+
+        if (user.id != presentEntity.userId && !user.admin)
+            throw UnauthorizedException("Admin status is required to modify another user's vault")
+
         presentEntity.title = vaultUpdate.title ?: presentEntity.title
         presentEntity.description = vaultUpdate.description ?: presentEntity.description
 

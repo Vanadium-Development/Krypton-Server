@@ -5,6 +5,7 @@ import dev.vanadium.krypton.server.openapi.controllers.VaultApi
 import dev.vanadium.krypton.server.openapi.model.StatusResponse
 import dev.vanadium.krypton.server.openapi.model.Vault
 import dev.vanadium.krypton.server.openapi.model.VaultResponse
+import dev.vanadium.krypton.server.openapi.model.VaultUpdate
 import dev.vanadium.krypton.server.service.VaultService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RestController
@@ -27,4 +28,8 @@ class VaultController(val vaultService: VaultService) : VaultApi {
         return ResponseEntity.ok(vault.get())
     }
 
+    override fun updateVault(vaultUpdate: VaultUpdate): ResponseEntity<StatusResponse> {
+        vaultService.updateVault(vaultUpdate)
+        return ResponseEntity.ok(StatusResponse("Vault updated"))
+    }
 }
