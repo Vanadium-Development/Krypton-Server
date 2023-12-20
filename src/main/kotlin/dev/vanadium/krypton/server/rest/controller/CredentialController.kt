@@ -15,14 +15,14 @@ import java.util.*
 @RestController
 class CredentialController(val credentialService: CredentialService, val fieldService: FieldService) : CredentialApi {
 
-    override fun createCredential(credential: Credential): ResponseEntity<StatusResponse> {
+    override fun createCredential(credential: Credential): ResponseEntity<Credential> {
         val cred = credentialService.createCredential(credential.title, credential.vault)
 
         credential.body.forEach { field ->
             fieldService.createField(field.fieldType, field.title, field.value, cred.id)
         }
 
-        return ResponseEntity.ok(StatusResponse("OK"))
+        return ResponseEntity.ok(Credential(cred.title, cred.vaultId, emptyList(), cred.id))
     }
 
     override fun updateCredential(credentialUpdate: CredentialUpdate): ResponseEntity<StatusResponse> {
