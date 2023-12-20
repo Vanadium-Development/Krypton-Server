@@ -1,5 +1,6 @@
 package dev.vanadium.krypton.server.service
 
+import dev.vanadium.krypton.server.authorizedUser
 import dev.vanadium.krypton.server.error.NotFoundException
 import dev.vanadium.krypton.server.openapi.model.*
 import dev.vanadium.krypton.server.persistence.dao.CredentialDao
@@ -15,20 +16,21 @@ import java.util.*
 @Service
 class VaultService(val vaultDao: VaultDao, val fieldDao: FieldDao, val credentialDao: CredentialDao) {
 
-    fun createVault(vault: Vault) {
+    fun createVault(vault: Vault): VaultEntity {
         val vaultEntity = VaultEntity()
         vaultEntity.title = vault.title
         vaultEntity.description = vault.description
-        vaultEntity.userId = (SecurityContextHolder.getContext().authentication.principal as UserEntity).id
+        vaultEntity.userId = authorizedUser().id
 
         vaultDao.save(vaultEntity)
+        return vaultEntity
     }
 
     fun aggregateCredentials(vaultUUID: UUID): Optional<VaultResponse> {
 
         vaultDao.findByIdAndUserId(
             vaultUUID,
-            (SecurityContextHolder.getContext().authentication as KryptonAuthentication).user.id
+            authorizedUser().id
         ) ?: return Optional.empty()
 
         val credentials = credentialDao.credentialsOf(vaultUUID)

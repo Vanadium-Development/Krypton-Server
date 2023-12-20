@@ -1,5 +1,6 @@
 package dev.vanadium.krypton.server.service
 
+import dev.vanadium.krypton.server.authorizedUser
 import dev.vanadium.krypton.server.error.ConflictException
 import dev.vanadium.krypton.server.error.NotFoundException
 import dev.vanadium.krypton.server.error.UnauthorizedException
@@ -123,7 +124,7 @@ class UserService(
     }
 
     fun updateUser(userUpdate: UserUpdate) {
-        val authUser = (SecurityContextHolder.getContext().authentication as KryptonAuthentication).user
+        val authUser = authorizedUser()
         if (authUser.id != userUpdate.id && !authUser.admin)
             throw UnauthorizedException("Cannot update another user without administrator status")
 
