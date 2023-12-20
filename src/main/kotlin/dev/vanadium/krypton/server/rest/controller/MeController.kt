@@ -14,7 +14,6 @@ import org.springframework.core.io.Resource
 import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RestController
-import java.util.*
 
 @RestController
 class MeController(
@@ -38,7 +37,7 @@ class MeController(
     override fun dumpCredentialsMessagePack(): ResponseEntity<Resource> {
         val aggregate = userService.aggregateOwnCredentials()
         val mapper = ObjectMapper(msgPackFactory)
-        val resource = ByteArrayResource(Base64.getEncoder().encode(mapper.writeValueAsBytes(aggregate)))
+        val resource = ByteArrayResource(mapper.writeValueAsBytes(aggregate))
 
         httpServletResponse.setHeader(
             HttpHeaders.CONTENT_DISPOSITION,
