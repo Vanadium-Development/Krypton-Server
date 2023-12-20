@@ -1,6 +1,7 @@
 package dev.vanadium.krypton.server.rest.controller
 
 import dev.vanadium.krypton.server.openapi.controllers.VaultApi
+import dev.vanadium.krypton.server.openapi.model.StatusResponse
 import dev.vanadium.krypton.server.openapi.model.Vault
 import dev.vanadium.krypton.server.openapi.model.VaultResponse
 import dev.vanadium.krypton.server.openapi.model.VaultUpdate
@@ -23,9 +24,9 @@ class VaultController(val vaultService: VaultService) : VaultApi {
         return ResponseEntity.ok(vault.get())
     }
 
-    override fun updateVault(vaultUpdate: VaultUpdate): ResponseEntity<StatusResponse> {
-        vaultService.updateVault(vaultUpdate)
-        return ResponseEntity.ok(StatusResponse("Vault updated"))
+    override fun updateVault(vaultUpdate: VaultUpdate): ResponseEntity<Vault> {
+        val vault = vaultService.updateVault(vaultUpdate)
+        return ResponseEntity.ok(Vault(vault.title, vault.description, vault.id))
     }
 
     override fun deleteVault(vaultUUID: UUID): ResponseEntity<StatusResponse> {

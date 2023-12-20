@@ -57,7 +57,7 @@ class VaultService(val vaultDao: VaultDao, val fieldDao: FieldDao, val credentia
         return Optional.of(VaultResponse(vaultUUID, credentialDtos))
     }
 
-    fun updateVault(vaultUpdate: VaultUpdate) {
+    fun updateVault(vaultUpdate: VaultUpdate): VaultEntity {
         val entity = vaultDao.findById(vaultUpdate.id)
 
         if (!entity.isPresent) throw NotFoundException("Could not find the requested vault")
@@ -72,6 +72,8 @@ class VaultService(val vaultDao: VaultDao, val fieldDao: FieldDao, val credentia
         presentEntity.description = vaultUpdate.description ?: presentEntity.description
 
         vaultDao.save(presentEntity)
+
+        return presentEntity
     }
 
     /**
