@@ -3,6 +3,7 @@ package dev.vanadium.krypton.server.rest.controller
 import dev.vanadium.krypton.server.openapi.controllers.VaultApi
 import dev.vanadium.krypton.server.openapi.model.Vault
 import dev.vanadium.krypton.server.openapi.model.VaultResponse
+import dev.vanadium.krypton.server.openapi.model.VaultUpdate
 import dev.vanadium.krypton.server.service.VaultService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RestController
@@ -22,4 +23,14 @@ class VaultController(val vaultService: VaultService) : VaultApi {
         return ResponseEntity.ok(vault.get())
     }
 
+    override fun updateVault(vaultUpdate: VaultUpdate): ResponseEntity<StatusResponse> {
+        vaultService.updateVault(vaultUpdate)
+        return ResponseEntity.ok(StatusResponse("Vault updated"))
+    }
+
+    override fun deleteVault(vaultUUID: UUID): ResponseEntity<StatusResponse> {
+        vaultService.removeVault(vaultUUID)
+
+        return ResponseEntity.ok(StatusResponse("Vault deleted"))
+    }
 }
