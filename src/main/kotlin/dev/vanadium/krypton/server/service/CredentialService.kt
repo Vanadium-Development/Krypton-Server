@@ -42,7 +42,7 @@ class CredentialService(val credentialDao: CredentialDao, val vaultDao: VaultDao
 
         val presentEntity = entity.get()
 
-        val user = (SecurityContextHolder.getContext().authentication as KryptonAuthentication).user
+        val user = authorizedUser()
         if (user.id != presentEntity.id && !user.admin)
             throw ForbiddenException("Admin status is required to modify another user's credentials")
 
