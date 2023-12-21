@@ -2,6 +2,7 @@ package dev.vanadium.krypton.server.service
 
 import dev.vanadium.krypton.server.authorizedUser
 import dev.vanadium.krypton.server.error.ConflictException
+import dev.vanadium.krypton.server.error.ForbiddenException
 import dev.vanadium.krypton.server.error.NotFoundException
 import dev.vanadium.krypton.server.error.UnauthorizedException
 import dev.vanadium.krypton.server.openapi.model.UserUpdate
@@ -126,7 +127,7 @@ class UserService(
     fun updateUser(userUpdate: UserUpdate) {
         val authUser = authorizedUser()
         if (authUser.id != userUpdate.id && !authUser.admin)
-            throw UnauthorizedException("Cannot update another user without administrator status")
+            throw ForbiddenException("Cannot update another user without administrator status")
 
         val entity = userDao.findById(userUpdate.id)
 
@@ -138,7 +139,7 @@ class UserService(
         presentEntity.username = userUpdate.username ?: presentEntity.username
 
         if (!authUser.admin && userUpdate.admin != null)
-            throw UnauthorizedException("Cannot promote/demote user to and from the administrative role without being an administrator.")
+            throw ForbiddenException("Cannot promote/demote user to and from the administrative role without being an administrator.")
 
         presentEntity.admin = userUpdate.admin ?: presentEntity.admin
         
