@@ -1,13 +1,12 @@
 package dev.vanadium.krypton.server.service
 
+import dev.vanadium.krypton.server.authorizedUser
+import dev.vanadium.krypton.server.error.ForbiddenException
 import dev.vanadium.krypton.server.error.NotFoundException
-import dev.vanadium.krypton.server.error.UnauthorizedException
 import dev.vanadium.krypton.server.openapi.model.FieldType
 import dev.vanadium.krypton.server.openapi.model.FieldUpdate
 import dev.vanadium.krypton.server.persistence.dao.FieldDao
 import dev.vanadium.krypton.server.persistence.model.FieldEntity
-import dev.vanadium.krypton.server.security.KryptonAuthentication
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -35,9 +34,9 @@ class FieldService(val fieldDao: FieldDao) {
 
         val presentEntity = entity.get()
 
-        val user = (SecurityContextHolder.getContext().authentication as KryptonAuthentication).user
+        val user = authorizedUser()
         if (user.id != presentEntity.id && !user.admin)
-            throw UnauthorizedException("Admin status is required to modify another user's credential field")
+            throw ForbiddenException("Admin status is required to modify another user's credential field")
 
         presentEntity.title = fieldUpdate.title ?: presentEntity.title
         presentEntity.type = (fieldUpdate.fieldType ?: presentEntity.type).toString()
@@ -54,9 +53,9 @@ class FieldService(val fieldDao: FieldDao) {
 
         val presentEntity = entity.get()
 
-        val user = (SecurityContextHolder.getContext().authentication as KryptonAuthentication).user
+        val user = authorizedUser()
         if (user.id != presentEntity.id && !user.admin)
-            throw UnauthorizedException("Admin status is required to delete another user's credential fields")
+            throw ForbiddenException("Admin status is required to delete another user's credential fields")
 
         fieldDao.delete(presentEntity)
     }
