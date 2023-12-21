@@ -1,5 +1,7 @@
 package dev.vanadium.krypton.server.service
 
+import dev.vanadium.krypton.server.authorizedUser
+import dev.vanadium.krypton.server.error.ForbiddenException
 import dev.vanadium.krypton.server.error.NotFoundException
 import dev.vanadium.krypton.server.openapi.model.FieldType
 import dev.vanadium.krypton.server.openapi.model.FieldUpdate
@@ -31,11 +33,31 @@ class FieldService(val fieldDao: FieldDao) {
         if (!entity.isPresent) throw NotFoundException("Could not find the requested field")
 
         val presentEntity = entity.get()
+
+        val user = authorizedUser()
+        if (user.id != presentEntity.id && !user.admin)
+            throw ForbiddenException("Admin status is required to modify another user's credential field")
+
         presentEntity.title = fieldUpdate.title ?: presentEntity.title
         presentEntity.type = (fieldUpdate.fieldType ?: presentEntity.type).toString()
         presentEntity.value = fieldUpdate.value ?: presentEntity.value
 
         fieldDao.save(presentEntity)
+    }
+
+    fun removeField(fieldUUID: UUID) {
+        val entity = fieldDao.findById(fieldUUID)
+
+        if (!entity.isPresent)
+            throw NotFoundException("Could not find the requested field")
+
+        val presentEntity = entity.get()
+
+        val user = authorizedUser()
+        if (user.id != presentEntity.id && !user.admin)
+            throw ForbiddenException("Admin status is required to delete another user's credential fields")
+
+        fieldDao.delete(presentEntity)
     }
 
 }

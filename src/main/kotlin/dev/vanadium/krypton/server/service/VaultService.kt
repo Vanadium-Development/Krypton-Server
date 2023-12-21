@@ -1,6 +1,9 @@
 package dev.vanadium.krypton.server.service
 
+import dev.vanadium.krypton.server.authorizedUser
+import dev.vanadium.krypton.server.error.ForbiddenException
 import dev.vanadium.krypton.server.error.NotFoundException
+import dev.vanadium.krypton.server.error.UnauthorizedException
 import dev.vanadium.krypton.server.openapi.model.*
 import dev.vanadium.krypton.server.persistence.dao.CredentialDao
 import dev.vanadium.krypton.server.persistence.dao.FieldDao
@@ -13,23 +16,27 @@ import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-class VaultService(val vaultDao: VaultDao, val fieldDao: FieldDao, val credentialDao: CredentialDao) {
+class VaultService(val vaultDao: VaultDao, val fieldDao: FieldDao, val credentialDao: CredentialDao, val credentialService: CredentialService) {
 
-    fun createVault(vault: Vault) {
+    fun createVault(vault: Vault): VaultEntity {
         val vaultEntity = VaultEntity()
         vaultEntity.title = vault.title
         vaultEntity.description = vault.description
-        vaultEntity.userId = (SecurityContextHolder.getContext().authentication.principal as UserEntity).id
+        vaultEntity.userId = authorizedUser().id
 
         vaultDao.save(vaultEntity)
+        return vaultEntity
     }
 
     fun aggregateCredentials(vaultUUID: UUID): Optional<VaultResponse> {
+        val vault = vaultDao.findById(vaultUUID)
 
-        vaultDao.findByIdAndUserId(
-            vaultUUID,
-            (SecurityContextHolder.getContext().authentication as KryptonAuthentication).user.id
-        ) ?: return Optional.empty()
+        if (vault.isEmpty)
+            throw NotFoundException("Could not find the requested vault")
+
+        val authorizedUser = authorizedUser()
+        if (vault.get().userId != authorizedUser.id && !authorizedUser.admin)
+            throw ForbiddenException("Admin status is required to get other user's vaults")
 
         val credentials = credentialDao.credentialsOf(vaultUUID)
 
@@ -52,16 +59,47 @@ class VaultService(val vaultDao: VaultDao, val fieldDao: FieldDao, val credentia
         return Optional.of(VaultResponse(vaultUUID, credentialDtos))
     }
 
-    fun updateVault(vaultUpdate: VaultUpdate) {
+    fun updateVault(vaultUpdate: VaultUpdate): VaultEntity {
         val entity = vaultDao.findById(vaultUpdate.id)
 
         if (!entity.isPresent) throw NotFoundException("Could not find the requested vault")
 
         val presentEntity = entity.get()
+        val user = authorizedUser()
+
+        if (user.id != presentEntity.userId && !user.admin)
+            throw ForbiddenException("Admin status is required to modify another user's vault")
+
         presentEntity.title = vaultUpdate.title ?: presentEntity.title
         presentEntity.description = vaultUpdate.description ?: presentEntity.description
 
         vaultDao.save(presentEntity)
+
+        return presentEntity
+    }
+
+    /**
+     * Note: This will cascade-delete all credentials and hence also all fields in the vault
+     */
+    fun removeVault(vaultUUID: UUID) {
+        val entity = vaultDao.findById(vaultUUID)
+
+        if (!entity.isPresent)
+            throw NotFoundException("Could not find the requested vault")
+
+        val presentEntity = entity.get()
+
+        val user = authorizedUser()
+        if (user.id != presentEntity.id && !user.admin)
+            throw ForbiddenException("Admin status is required to delete another user's vault")
+
+        // Delete cascade
+        val credentials = credentialDao.credentialsOf(vaultUUID)
+        credentials.forEach { cred ->
+            credentialService.removeCredential(cred.id)
+        }
+
+        vaultDao.delete(presentEntity)
     }
 
 }
