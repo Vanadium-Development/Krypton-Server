@@ -34,7 +34,8 @@ class VaultService(val vaultDao: VaultDao, val fieldDao: FieldDao, val credentia
         if (vault.isEmpty)
             throw NotFoundException("Could not find the requested vault")
 
-        if (vault.get().userId != authorizedUser().id && !authorizedUser().admin)
+        val authorizedUser = authorizedUser()
+        if (vault.get().userId != authorizedUser.id && !authorizedUser.admin)
             throw ForbiddenException("Admin status is required to get other user's vaults")
 
         val credentials = credentialDao.credentialsOf(vaultUUID)

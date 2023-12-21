@@ -23,7 +23,8 @@ class CredentialService(val credentialDao: CredentialDao, val vaultDao: VaultDao
         if (vault.isEmpty)
             throw NotFoundException("Could not find the requested vault")
 
-        if (vault.get().userId != authorizedUser().id && !authorizedUser().admin)
+        val authorizedUser = authorizedUser()
+        if (vault.get().userId != authorizedUser.id && !authorizedUser.admin)
             throw ForbiddenException("Cannot create a credential for another user without having an admin status")
 
         val credential = CredentialEntity()
