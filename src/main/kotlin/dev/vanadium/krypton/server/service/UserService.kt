@@ -51,7 +51,7 @@ class UserService(
                         "DUpo/2J75tzjuqqSZDfBWwM5adk6M/e4UYEC2Y/uWDKldqu+OrePmOPNZEV3oExt\n" +
                         "ai/yIC0dfvYWDN2zkYoPv0++jsYgJenZKLFDYpKM8QQ5MDZf6+MQQV1to3V5+MbE\n" +
                         "7fsRh5WIzTqsEXtB1wIDAQAB\n" +
-                        "-----END PUBLIC KEY-----"
+                        "-----END PUBLIC KEY-----", true
             )
             sessionService.createSession(userDao.getUserByUsername("admin")!!.id)
         }
@@ -68,7 +68,7 @@ class UserService(
      * @throws ConflictException if the username already exists in the database
      */
     @Transactional
-    fun createUser(firstname: String, lastname: String, username: String, pubKey: String): UserEntity {
+    fun createUser(firstname: String, lastname: String, username: String, pubKey: String, admin: Boolean): UserEntity {
 
         if (userDao.usernameExists(username))
             throw ConflictException("Username already exists.")
@@ -77,6 +77,7 @@ class UserService(
         entity.firstname = firstname
         entity.lastname = lastname
         entity.username = username
+        entity.admin = admin;
         entity.pubKey =
             pubKey.replace("\n", "").replace("-----BEGIN PUBLIC KEY-----", "").replace("-----END PUBLIC KEY-----", "")
 
