@@ -8,9 +8,7 @@ import dev.vanadium.krypton.server.error.UnauthorizedException
 import dev.vanadium.krypton.server.openapi.model.UserUpdate
 import dev.vanadium.krypton.server.persistence.dao.UserDao
 import dev.vanadium.krypton.server.persistence.model.UserEntity
-import dev.vanadium.krypton.server.security.KryptonAuthentication
 import jakarta.annotation.PostConstruct
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -63,7 +61,7 @@ class UserService(
      * @param firstname the firstname of the user
      * @param lastname the lastname of the user
      * @param username the username of the user
-     * @param auth the password of the user
+     * @param pubKey the password of the user
      * @return the created UserEntity object
      * @throws ConflictException if the username already exists in the database
      */
@@ -79,7 +77,8 @@ class UserService(
         entity.username = username
         entity.admin = admin;
         entity.pubKey =
-            pubKey.replace("\n", "").replace("-----BEGIN PUBLIC KEY-----", "").replace("-----END PUBLIC KEY-----", "")
+            pubKey.replace("\n", "").replace("\r", "").replace("-----BEGIN PUBLIC KEY-----", "").replace("-----END PUBLIC KEY-----", "")
+
 
         entity = userDao.save(entity)
 
@@ -90,12 +89,12 @@ class UserService(
      * Authenticates a user by verifying their username and password.
      *
      * @param username The username of the user to authenticate.
-     * @param password The password of the user to authenticate.
      *
      * @return The authentication token for the user's session.
      *
      * @throws UnauthorizedException if the username or password is incorrect, or if the user is deleted.
      */
+    @Transactional
     fun login(username: String): String {
         val unauthorizedException = UnauthorizedException("Username incorrect.")
         val user = userDao.getUserByUsername(username) ?: throw unauthorizedException
