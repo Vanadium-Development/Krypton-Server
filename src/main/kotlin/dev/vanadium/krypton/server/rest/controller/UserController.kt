@@ -17,7 +17,8 @@ class UserController(private val userService: UserService) : UserApi {
             createUserRequest.firstname,
             createUserRequest.lastname,
             createUserRequest.username,
-            createUserRequest.pubKey
+            createUserRequest.pubKey,
+            false
         )
 
         return ResponseEntity.ok(StatusResponse("User created"))
