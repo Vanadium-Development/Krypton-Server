@@ -3,6 +3,9 @@ package dev.vanadium.krypton.server.service
 import dev.vanadium.krypton.server.persistence.dao.SessionDao
 import dev.vanadium.krypton.server.persistence.dao.UserDao
 import dev.vanadium.krypton.server.persistence.model.SessionEntity
+import org.apache.logging.log4j.spi.LoggerContextFactory
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
@@ -14,8 +17,11 @@ import kotlin.random.Random
 @EnableScheduling
 class SessionService(
     private var sessionDao: SessionDao,
-    private var userDao: UserDao,
+    private var userDao: UserDao
 ) {
+
+    private val logger: Logger = LoggerFactory.getLogger(this::class.java)
+
     /**
      * Creates a new session for the given user.
      *
@@ -47,7 +53,7 @@ class SessionService(
             return
         sessionDao.deleteAll(abandoned)
         sessionDao.deleteAll(flagged)
-        println("Removed ${count} outdated and/or flagged sessions.")
+        logger.info("Removed ${count} outdated and/or flagged sessions.")
     }
 
     /**
