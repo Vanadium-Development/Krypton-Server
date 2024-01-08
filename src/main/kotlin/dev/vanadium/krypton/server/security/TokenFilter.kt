@@ -32,12 +32,14 @@ class TokenFilter(private var sessionDao: SessionDao) : OncePerRequestFilter() {
 
         val user = sessionDao.getUserBySessionToken(token, false)
 
-        if (user == null) {
+        val session = sessionDao.getSessionEntityByToken(token)
+
+        if (user == null || session == null) {
             sendUnauthorized(response)
             return
         }
 
-        SecurityContextHolder.getContext().authentication = KryptonAuthentication(user, token)
+        SecurityContextHolder.getContext().authentication = KryptonAuthentication(user, session, token)
         filterChain.doFilter(request, response)
     }
 

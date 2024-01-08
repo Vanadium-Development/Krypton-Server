@@ -3,14 +3,11 @@ package dev.vanadium.krypton.server.service
 import dev.vanadium.krypton.server.authorizedUser
 import dev.vanadium.krypton.server.error.ForbiddenException
 import dev.vanadium.krypton.server.error.NotFoundException
-import dev.vanadium.krypton.server.error.UnauthorizedException
 import dev.vanadium.krypton.server.openapi.model.CredentialUpdate
 import dev.vanadium.krypton.server.persistence.dao.CredentialDao
 import dev.vanadium.krypton.server.persistence.dao.FieldDao
 import dev.vanadium.krypton.server.persistence.dao.VaultDao
 import dev.vanadium.krypton.server.persistence.model.CredentialEntity
-import dev.vanadium.krypton.server.security.KryptonAuthentication
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import java.util.*
 

@@ -8,9 +8,7 @@ import dev.vanadium.krypton.server.error.UnauthorizedException
 import dev.vanadium.krypton.server.openapi.model.UserUpdate
 import dev.vanadium.krypton.server.persistence.dao.UserDao
 import dev.vanadium.krypton.server.persistence.model.UserEntity
-import dev.vanadium.krypton.server.security.KryptonAuthentication
 import jakarta.annotation.PostConstruct
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -77,7 +75,7 @@ class UserService(
         entity.firstname = firstname
         entity.lastname = lastname
         entity.username = username
-        entity.admin = admin;
+        entity.admin = admin
         entity.pubKey =
             pubKey.replace("\n", "").replace("-----BEGIN PUBLIC KEY-----", "").replace("-----END PUBLIC KEY-----", "")
 
