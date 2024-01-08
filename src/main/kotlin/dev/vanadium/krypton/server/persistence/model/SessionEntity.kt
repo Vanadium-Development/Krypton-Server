@@ -29,6 +29,9 @@ class SessionEntity : Persistable<String> {
     @Column("user_id")
     lateinit var userId: UUID
 
+    @Column("accessed_at")
+    var accessedAt: Instant = Instant.now()
+
     override fun getId(): String {
         return token
     }
