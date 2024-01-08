@@ -75,7 +75,7 @@ class UserService(
         entity.firstname = firstname
         entity.lastname = lastname
         entity.username = username
-        entity.admin = admin;
+        entity.admin = admin
         entity.pubKey =
             pubKey.replace("\n", "").replace("\r", "").replace("-----BEGIN PUBLIC KEY-----", "").replace("-----END PUBLIC KEY-----", "")
 

@@ -3,16 +3,25 @@ package dev.vanadium.krypton.server.service
 import dev.vanadium.krypton.server.persistence.dao.SessionDao
 import dev.vanadium.krypton.server.persistence.dao.UserDao
 import dev.vanadium.krypton.server.persistence.model.SessionEntity
+import org.apache.logging.log4j.spi.LoggerContextFactory
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import org.springframework.scheduling.annotation.EnableScheduling
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
 import kotlin.random.Random
 
 @Service
+@EnableScheduling
 class SessionService(
     private var sessionDao: SessionDao,
-    private var userDao: UserDao,
+    private var userDao: UserDao
 ) {
+
+    private val logger: Logger = LoggerFactory.getLogger(this::class.java)
+
     /**
      * Creates a new session for the given user.
      *
@@ -30,6 +39,22 @@ class SessionService(
         return entity
     }
 
+    /**
+     * This runs every 20s to remove any sessions that are
+     * - Explicitly flagged for removal
+     * - Expired
+     */
+    @Scheduled(cron = "*/20 * * * * *")
+    fun expireSessions() {
+        val abandoned = sessionDao.getAbandonedSessions()
+        val flagged = sessionDao.getSessionsFlaggedForRemoval()
+        val count = abandoned.size + flagged.size
+        if (count == 0)
+            return
+        sessionDao.deleteAll(abandoned)
+        sessionDao.deleteAll(flagged)
+        logger.info("Removed ${count} outdated and/or flagged sessions.")
+    }
 
     /**
      * Generates a session token.

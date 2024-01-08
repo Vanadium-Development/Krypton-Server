@@ -1,6 +1,5 @@
 package dev.vanadium.krypton.server.rest.controller
 
-import dev.vanadium.krypton.server.error.NotFoundException
 import dev.vanadium.krypton.server.openapi.controllers.CredentialApi
 import dev.vanadium.krypton.server.openapi.model.Credential
 import dev.vanadium.krypton.server.openapi.model.CredentialUpdate

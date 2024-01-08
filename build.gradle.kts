@@ -1,4 +1,3 @@
-import org.jetbrains.kotlin.com.google.common.io.Files
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
