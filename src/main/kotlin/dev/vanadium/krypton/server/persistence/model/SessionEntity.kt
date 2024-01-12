@@ -32,6 +32,9 @@ class SessionEntity : Persistable<String> {
     @Column("accessed_at")
     var accessedAt: Instant = Instant.now()
 
+    @Column("dirty")
+    var dirty: Boolean = false;
+
     override fun getId(): String {
         return token
     }

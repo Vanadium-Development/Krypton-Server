@@ -16,8 +16,7 @@ import kotlin.random.Random
 @Service
 @EnableScheduling
 class SessionService(
-    private var sessionDao: SessionDao,
-    private var userDao: UserDao
+    private var sessionDao: SessionDao
 ) {
 
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
@@ -30,6 +29,13 @@ class SessionService(
      */
     @Transactional
     fun createSession(user: UUID): SessionEntity {
+
+        val redundantSession = sessionDao.getRedundantSession(user)
+
+        if(redundantSession != null) {
+            return redundantSession
+        }
+
         var entity = SessionEntity() new true
         entity.token = this.generateSessionToken()
         entity.userId = user
