@@ -103,6 +103,7 @@ class UserService(
             throw unauthorizedException
 
         val session = sessionService.createSession(user.id)
+
         val encryptedToken = encryptionService.encryptToken(user.pubKey, session.token)
 
         return encryptedToken
