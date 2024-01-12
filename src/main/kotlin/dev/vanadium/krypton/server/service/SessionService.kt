@@ -1,9 +1,7 @@
 package dev.vanadium.krypton.server.service
 
 import dev.vanadium.krypton.server.persistence.dao.SessionDao
-import dev.vanadium.krypton.server.persistence.dao.UserDao
 import dev.vanadium.krypton.server.persistence.model.SessionEntity
-import org.apache.logging.log4j.spi.LoggerContextFactory
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.EnableScheduling
