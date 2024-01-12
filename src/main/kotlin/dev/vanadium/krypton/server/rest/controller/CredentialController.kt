@@ -1,18 +1,16 @@
 package dev.vanadium.krypton.server.rest.controller
 
 import dev.vanadium.krypton.server.openapi.controllers.CredentialApi
-import dev.vanadium.krypton.server.openapi.model.Credential
-import dev.vanadium.krypton.server.openapi.model.CredentialUpdate
-import dev.vanadium.krypton.server.openapi.model.FieldUpdate
-import dev.vanadium.krypton.server.openapi.model.StatusResponse
+import dev.vanadium.krypton.server.openapi.model.*
 import dev.vanadium.krypton.server.service.CredentialService
 import dev.vanadium.krypton.server.service.FieldService
+import dev.vanadium.krypton.server.service.UserService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RestController
 import java.util.*
 
 @RestController
-class CredentialController(val credentialService: CredentialService, val fieldService: FieldService) : CredentialApi {
+class CredentialController(val credentialService: CredentialService, val fieldService: FieldService, val userService: UserService) : CredentialApi {
 
     override fun createCredential(credential: Credential): ResponseEntity<Credential> {
         val cred = credentialService.createCredential(credential.title, credential.vault)
@@ -40,5 +38,11 @@ class CredentialController(val credentialService: CredentialService, val fieldSe
         credentialService.removeCredential(credentialUUID)
 
         return ResponseEntity.ok(StatusResponse("Credential deleted"))
+    }
+
+    override fun deleteCredentialField(fieldUUID: UUID): ResponseEntity<StatusResponse> {
+        fieldService.removeField(fieldUUID)
+
+        return ResponseEntity.ok(StatusResponse("Field deleted."))
     }
 }
