@@ -20,4 +20,7 @@ interface SessionDao : CrudRepository<SessionEntity, UUID> {
     @Query("""select * from krypton_server.session where accessed_at < now() - interval '1 hour'""")
     fun getAbandonedSessions(): List<SessionEntity>
 
+    @Query("""select * from krypton_server.session where user_id = :user and invalidate = false and krypton_server.session.dirty = false""")
+    fun getRedundantSession(@Param("user") user: UUID): SessionEntity?
+
 }

@@ -41,6 +41,10 @@ class TokenFilter(private var sessionDao: SessionDao) : OncePerRequestFilter() {
         }
 
         session.accessedAt = Instant.now()
+
+        if(!session.dirty)
+            session.dirty = true
+
         sessionDao.save(session)
 
         SecurityContextHolder.getContext().authentication = KryptonAuthentication(user, session, token)
