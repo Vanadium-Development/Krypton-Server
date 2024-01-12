@@ -94,7 +94,7 @@ class UserService(
     /**
      * Aggregate all credentials of the logged-in user
      */
-    fun aggregateOwnCredentials(): Optional<CredentialDump> {
+    fun aggregateOwnCredentials(): CredentialDump {
         val userUUID = authorizedUser().id
 
         val vaults = vaultDao.findByUserId(userUUID)
@@ -105,7 +105,7 @@ class UserService(
             responseVaults.add(fullVault)
         }
 
-        return Optional.of(CredentialDump(userUUID, responseVaults))
+        return CredentialDump(userUUID, responseVaults)
     }
 
     /**
