@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
+import java.time.Instant
 
 class TokenFilter(private var sessionDao: SessionDao) : OncePerRequestFilter() {
     override fun doFilterInternal(
@@ -38,6 +39,9 @@ class TokenFilter(private var sessionDao: SessionDao) : OncePerRequestFilter() {
             sendUnauthorized(response)
             return
         }
+
+        session.accessedAt = Instant.now()
+        sessionDao.save(session)
 
         SecurityContextHolder.getContext().authentication = KryptonAuthentication(user, session, token)
         filterChain.doFilter(request, response)
