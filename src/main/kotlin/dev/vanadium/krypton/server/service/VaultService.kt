@@ -48,7 +48,7 @@ class VaultService(val vaultDao: VaultDao, val fieldDao: FieldDao, val credentia
             }
 
             credentialDtos.add(Credential(cred.title, cred.vaultId, fields.map { field ->
-                CredentialField(FieldType.valueOf(field.type), field.title, field.value)
+                CredentialField(FieldType.valueOf(field.type), field.title, field.value, field.id)
             }, cred.id))
         }
 

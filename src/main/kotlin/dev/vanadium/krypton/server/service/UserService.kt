@@ -5,18 +5,25 @@ import dev.vanadium.krypton.server.error.ConflictException
 import dev.vanadium.krypton.server.error.ForbiddenException
 import dev.vanadium.krypton.server.error.NotFoundException
 import dev.vanadium.krypton.server.error.UnauthorizedException
+import dev.vanadium.krypton.server.openapi.model.CredentialDump
 import dev.vanadium.krypton.server.openapi.model.UserUpdate
+import dev.vanadium.krypton.server.openapi.model.VaultResponse
 import dev.vanadium.krypton.server.persistence.dao.UserDao
+import dev.vanadium.krypton.server.persistence.dao.VaultDao
 import dev.vanadium.krypton.server.persistence.model.UserEntity
 import jakarta.annotation.PostConstruct
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.*
+import kotlin.jvm.optionals.getOrElse
 
 @Service
 class UserService(
     private val userDao: UserDao,
     private val sessionService: SessionService,
-    private val encryptionService: EncryptionService
+    private val encryptionService: EncryptionService,
+    private val vaultService: VaultService,
+    private val vaultDao: VaultDao
 ) {
 
     // TODO Remove this for production builds
@@ -85,10 +92,26 @@ class UserService(
     }
 
     /**
+     * Aggregate all credentials of the logged-in user
+     */
+    fun aggregateOwnCredentials(): Optional<CredentialDump> {
+        val userUUID = authorizedUser().id
+
+        val vaults = vaultDao.findByUserId(userUUID)
+        val responseVaults: ArrayList<VaultResponse> = arrayListOf()
+
+        vaults.forEach { vault ->
+            val fullVault = vaultService.aggregateCredentials(vault.id).getOrElse { throw NotFoundException("A vault that is linked to the user is not accessible: ${vault.id}") }
+            responseVaults.add(fullVault)
+        }
+
+        return Optional.of(CredentialDump(userUUID, responseVaults))
+    }
+
+    /**
      * Authenticates a user by verifying their username and password.
      *
      * @param username The username of the user to authenticate.
-     * @param password The password of the user to authenticate.
      *
      * @return The authentication token for the user's session.
      *
