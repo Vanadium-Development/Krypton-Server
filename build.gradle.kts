@@ -1,5 +1,5 @@
+import com.google.common.io.Files
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jetbrains.kotlin.ir.backend.js.compile
 
 plugins {
     id("org.springframework.boot") version "3.2.0"
@@ -75,6 +75,9 @@ tasks.withType<KotlinCompile> {
 
 
 tasks.compileKotlin {
+    doFirst {
+        Files.copy(File("./submodule/openapi/spec.yaml"), File("./src/main/resources/static/spec.yaml"))
+    }
     dependsOn("openApiGenerate")
 }
 
