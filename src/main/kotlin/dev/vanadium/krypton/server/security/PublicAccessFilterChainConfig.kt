@@ -20,7 +20,7 @@ class PublicAccessFilterChainConfig {
             cors { disable() }
             csrf { disable() }
 
-            securityMatcher("/public/**", "/user/register", "/", "/error", "/auth", "/auth/**", "/swagger-ui/**", "/v3/api-docs/**")
+            securityMatcher("/public/**", "/user/register", "/", "/error", "/auth", "/auth/**", "/swagger-ui/**", "/v3/api-docs/**", "/spec.yaml")
 
             authorizeRequests {
                 authorize(anyRequest, permitAll)
