@@ -13,5 +13,8 @@ spring:
     schemas: krypton_server
 springdoc:
   swagger-ui:
-    path: /spec.yaml
-    enabled: true
+    url: /spec.yaml
+krypton:
+  documentation:
+    login-username: demo
+    login-password: demo
