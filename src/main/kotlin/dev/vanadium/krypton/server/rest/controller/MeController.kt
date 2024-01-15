@@ -1,9 +1,7 @@
 package dev.vanadium.krypton.server.rest.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import dev.vanadium.krypton.server.aspect.RequireAdminAuthentication
 import dev.vanadium.krypton.server.authorizedUser
-import dev.vanadium.krypton.server.error.NotFoundException
 import dev.vanadium.krypton.server.openapi.controllers.MeApi
 import dev.vanadium.krypton.server.openapi.model.CredentialDump
 import dev.vanadium.krypton.server.openapi.model.User
