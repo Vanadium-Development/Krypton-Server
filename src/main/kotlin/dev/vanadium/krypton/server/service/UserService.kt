@@ -84,7 +84,8 @@ class UserService(
         entity.username = username
         entity.admin = admin
         entity.pubKey =
-            pubKey.replace("\n", "").replace("\r", "").replace("-----BEGIN PUBLIC KEY-----", "").replace("-----END PUBLIC KEY-----", "")
+            pubKey.replace("\n", "").replace("\r", "").replace("-----BEGIN PUBLIC KEY-----", "")
+                .replace("-----END PUBLIC KEY-----", "")
 
 
         entity = userDao.save(entity)
@@ -95,14 +96,20 @@ class UserService(
     /**
      * Aggregate all credentials of the logged-in user
      */
-    fun aggregateOwnCredentials(): CredentialDump {
-        val userUUID = authorizedUser().id
+    fun aggregateCredentialsOf(userUUID: UUID): CredentialDump {
+        val authUser = authorizedUser()
+        if (userUUID != authUser.id && !authUser.admin)
+            throw ForbiddenException("This operation requires admin privileges")
+
+        if (userDao.findById(userUUID).isEmpty)
+            throw NotFoundException("No user exists with this UUID.")
 
         val vaults = vaultDao.findByUserId(userUUID)
         val responseVaults: ArrayList<VaultResponse> = arrayListOf()
 
         vaults.forEach { vault ->
-            val fullVault = vaultService.aggregateCredentials(vault.id).getOrElse { throw NotFoundException("A vault that is linked to the user is not accessible: ${vault.id}") }
+            val fullVault = vaultService.aggregateCredentials(vault.id)
+                .getOrElse { throw NotFoundException("A vault that is linked to the user is not accessible: ${vault.id}") }
             responseVaults.add(fullVault)
         }
 
@@ -167,7 +174,7 @@ class UserService(
             throw ForbiddenException("Cannot promote/demote user to and from the administrative role without being an administrator.")
 
         presentEntity.admin = userUpdate.admin ?: presentEntity.admin
-        
+
         userDao.save(presentEntity)
     }
 

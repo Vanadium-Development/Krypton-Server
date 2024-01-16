@@ -1,11 +1,11 @@
 package dev.vanadium.krypton.server.error
 
+import com.google.gson.Gson
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.ConstraintViolationException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.stereotype.Component
 import org.springframework.web.HttpRequestMethodNotSupportedException
@@ -17,14 +17,16 @@ import org.springframework.web.servlet.NoHandlerFoundException
 
 @Component
 @ControllerAdvice
-class ErrorHandler {
+class ErrorHandler(
+    private val gson: Gson
+) {
 
 
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
     @ExceptionHandler(Exception::class)
-    fun handleException(exception: Exception, response: HttpServletResponse): ResponseEntity<ErrorResponse> {
-        return when (exception) {
+    fun handleException(exception: Exception, response: HttpServletResponse) {
+        val responseEntity = when (exception) {
             is KryptonApiException -> createErrorResponse(
                 response,
                 exception,
@@ -43,9 +45,20 @@ class ErrorHandler {
             )
 
             is NoHandlerFoundException,
-            is HttpRequestMethodNotSupportedException -> createErrorResponse(response, exception, HttpStatus.NOT_FOUND, false)
+            is HttpRequestMethodNotSupportedException -> createErrorResponse(
+                response,
+                exception,
+                HttpStatus.NOT_FOUND,
+                false
+            )
+
             else -> createErrorResponse(response, exception, HttpStatus.INTERNAL_SERVER_ERROR, true)
         }
+
+        response.status = responseEntity.statusCode
+        response.addHeader("Content-Type", "application/json")
+        response.writer.write(gson.toJson(responseEntity))
+
     }
 
 
@@ -54,7 +67,7 @@ class ErrorHandler {
         exception: Exception,
         statusCode: HttpStatus,
         shouldLog: Boolean
-    ): ResponseEntity<ErrorResponse> {
+    ): ErrorResponse {
         var message = exception.message ?: "No message provided"
         val correlationId = response.getHeader("X-Correlation-Id") ?: "No correlation id"
         if (shouldLog) {
@@ -62,14 +75,14 @@ class ErrorHandler {
             message = "Unknown Error"
         }
 
-        return ResponseEntity(
-            ErrorResponse(
-                correlationId,
-                exception::class.simpleName!!,
-                statusCode.name,
-                statusCode.value(),
-                message
-            ), statusCode
+
+
+        return ErrorResponse(
+            correlationId,
+            exception::class.simpleName!!,
+            statusCode.name,
+            statusCode.value(),
+            message
         )
 
     }

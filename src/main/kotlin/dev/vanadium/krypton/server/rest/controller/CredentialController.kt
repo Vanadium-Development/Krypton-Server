@@ -1,16 +1,30 @@
 package dev.vanadium.krypton.server.rest.controller
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import dev.vanadium.krypton.server.openapi.controllers.CredentialApi
 import dev.vanadium.krypton.server.openapi.model.*
 import dev.vanadium.krypton.server.service.CredentialService
 import dev.vanadium.krypton.server.service.FieldService
 import dev.vanadium.krypton.server.service.UserService
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
+import org.msgpack.jackson.dataformat.MessagePackFactory
+import org.springframework.core.io.ByteArrayResource
+import org.springframework.core.io.Resource
+import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RestController
 import java.util.*
 
 @RestController
-class CredentialController(val credentialService: CredentialService, val fieldService: FieldService, val userService: UserService) : CredentialApi {
+class CredentialController(
+    val credentialService: CredentialService,
+    val fieldService: FieldService,
+    val userService: UserService,
+    val msgPackFactory: MessagePackFactory,
+    val httpServletResponse: HttpServletResponse,
+    val httpServletRequest: HttpServletRequest
+) : CredentialApi {
 
     override fun createCredential(credential: Credential): ResponseEntity<Credential> {
         val cred = credentialService.createCredential(credential.title, credential.vault)
@@ -44,5 +58,24 @@ class CredentialController(val credentialService: CredentialService, val fieldSe
         fieldService.removeField(fieldUUID)
 
         return ResponseEntity.ok(StatusResponse("Field deleted."))
+    }
+
+    override fun dumpCredentialsJson(userUUID: UUID): ResponseEntity<CredentialDump> {
+        val aggregate = userService.aggregateCredentialsOf(userUUID)
+
+        return ResponseEntity.ok(aggregate)
+    }
+
+    override fun dumpCredentialsMessagePack(userUUID: UUID): ResponseEntity<Resource> {
+        val aggregate = userService.aggregateCredentialsOf(userUUID)
+        val mapper = ObjectMapper(msgPackFactory)
+        val resource = ByteArrayResource(mapper.writeValueAsBytes(aggregate))
+
+        httpServletResponse.setHeader(
+            HttpHeaders.CONTENT_DISPOSITION,
+            "attachment; filename=\"dump\""
+        )
+
+        return ResponseEntity.ok(resource)
     }
 }
