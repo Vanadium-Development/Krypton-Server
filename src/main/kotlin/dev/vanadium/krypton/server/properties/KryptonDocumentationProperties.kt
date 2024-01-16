@@ -6,7 +6,4 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 class KryptonDocumentationProperties(
     val loginUsername: String,
     val loginPassword: String
-) {
-
-
-}
+)
