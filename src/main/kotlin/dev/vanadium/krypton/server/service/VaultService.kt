@@ -14,7 +14,7 @@ import java.util.*
 @Service
 class VaultService(val vaultDao: VaultDao, val fieldDao: FieldDao, val credentialDao: CredentialDao, val credentialService: CredentialService) {
 
-    fun createVault(vault: Vault): VaultEntity {
+    fun createVault(vault: CreateVaultRequest): VaultEntity {
         val vaultEntity = VaultEntity()
         vaultEntity.title = vault.title
         vaultEntity.description = vault.description
@@ -96,6 +96,10 @@ class VaultService(val vaultDao: VaultDao, val fieldDao: FieldDao, val credentia
         }
 
         vaultDao.delete(presentEntity)
+    }
+
+    fun getVaultsByUser(userId: UUID): List<VaultEntity> {
+        return this.vaultDao.findByUserId(userId)
     }
 
 }
