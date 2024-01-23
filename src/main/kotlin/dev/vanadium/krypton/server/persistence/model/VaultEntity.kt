@@ -1,5 +1,6 @@
 package dev.vanadium.krypton.server.persistence.model
 
+import dev.vanadium.krypton.server.openapi.model.Vault
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
@@ -20,5 +21,10 @@ class VaultEntity {
 
     @Column("user_id")
     lateinit var userId: UUID
+
+
+    fun toDto(): Vault {
+        return Vault(this.title, this.description, this.id)
+    }
 
 }
