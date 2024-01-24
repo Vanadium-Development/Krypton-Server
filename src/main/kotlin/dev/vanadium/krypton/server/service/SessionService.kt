@@ -1,5 +1,7 @@
 package dev.vanadium.krypton.server.service
 
+import dev.vanadium.krypton.server.authorizedSession
+import dev.vanadium.krypton.server.error.InternalServerErrorException
 import dev.vanadium.krypton.server.persistence.dao.SessionDao
 import dev.vanadium.krypton.server.persistence.model.SessionEntity
 import org.slf4j.Logger
@@ -30,7 +32,7 @@ class SessionService(
 
         val redundantSession = sessionDao.getRedundantSession(user)
 
-        if(redundantSession != null) {
+        if (redundantSession != null) {
             return redundantSession
         }
 
@@ -48,7 +50,7 @@ class SessionService(
      * - Explicitly flagged for removal
      * - Expired
      */
-    @Scheduled(cron = "*/20 * * * * *")
+    @Scheduled(cron = "0 */60 * * * *")
     fun expireSessions() {
         val abandoned = sessionDao.getAbandonedSessions()
         val flagged = sessionDao.getSessionsFlaggedForRemoval()
@@ -57,7 +59,13 @@ class SessionService(
             return
         sessionDao.deleteAll(abandoned)
         sessionDao.deleteAll(flagged)
-        logger.info("Removed ${count} outdated and/or flagged sessions.")
+        logger.info("Removed $count outdated and/or flagged sessions.")
+    }
+
+    fun invalidate(sessionToken: String) {
+        val session = sessionDao.getSessionEntityByToken(sessionToken) ?: return
+        session.invalidate = true
+        sessionDao.save(session)
     }
 
     /**
