@@ -49,6 +49,7 @@ class SpringdocsConfiguration {
         }
 
         return ResponseEntity.ok()
+            .header("Content-Type", "text/yaml")
             .contentLength(file.contentLength())
             .body(file.file.readText())
     }

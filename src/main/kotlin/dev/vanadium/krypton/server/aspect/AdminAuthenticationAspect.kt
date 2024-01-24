@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component
 @Component
 class AdminAuthenticationAspect {
 
-
     @Before("@annotation(RequireAdminAuthentication)")
     fun adminAuthenticationAnnotationPresent() {
         val user = authorizedUser()
