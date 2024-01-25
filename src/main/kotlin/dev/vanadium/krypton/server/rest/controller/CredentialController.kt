@@ -26,14 +26,18 @@ class CredentialController(
     val httpServletRequest: HttpServletRequest
 ) : CredentialApi {
 
-    override fun createCredential(credential: Credential): ResponseEntity<Credential> {
-        val cred = credentialService.createCredential(credential.title, credential.vault)
+    override fun createCredential(
+        vaultId: UUID,
+        createCredentialRequest: CreateCredentialRequest
+    ): ResponseEntity<Credential> {
+        val cred = credentialService.createCredential(createCredentialRequest.title, vaultId)
 
-        credential.body.forEach { field ->
+        createCredentialRequest.body.forEach { field ->
             fieldService.createField(field.fieldType, field.title, field.value, cred.id)
         }
 
         return ResponseEntity.ok(Credential(cred.title, cred.vaultId, emptyList(), cred.id))
+
     }
 
     override fun updateCredential(credentialUpdate: CredentialUpdate): ResponseEntity<StatusResponse> {
