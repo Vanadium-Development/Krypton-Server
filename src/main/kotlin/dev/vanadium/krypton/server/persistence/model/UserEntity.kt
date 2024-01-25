@@ -40,6 +40,9 @@ class UserEntity {
     @Column("deleted_at")
     var deletedAt: Instant? = null
 
+    @Column("aes_key")
+    lateinit var aesKey: String
+
     fun toUserDto(): User {
         return User(this.id, this.firstname, this.lastname, this.username, this.admin)
     }

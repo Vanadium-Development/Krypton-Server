@@ -1,0 +1,1 @@
+alter table krypton_server."user" add column aes_key text not null default 'n/a';

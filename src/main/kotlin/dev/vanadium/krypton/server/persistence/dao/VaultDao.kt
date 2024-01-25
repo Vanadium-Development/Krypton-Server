@@ -14,4 +14,5 @@ interface VaultDao : CrudRepository<VaultEntity, UUID> {
     @Query("""select * from krypton_server.vault where user_id = :userId""")
     fun findByUserId(@Param("userId") user: UUID): List<VaultEntity>
 
+
 }

@@ -1,9 +1,11 @@
 package dev.vanadium.krypton.server.persistence.dao
 
 import dev.vanadium.krypton.server.persistence.model.UserEntity
+import org.springframework.data.jdbc.repository.query.Modifying
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
+import org.springframework.transaction.annotation.Transactional
 import java.util.*
 
 interface UserDao : CrudRepository<UserEntity, UUID> {
@@ -19,4 +21,8 @@ interface UserDao : CrudRepository<UserEntity, UUID> {
     @Query("""select * from krypton_server."user" where username = :username""")
     fun getUserByUsername(@Param("username") username: String): UserEntity?
 
+    @Modifying
+    @Transactional
+    @Query("""update krypton_server."user" set aes_key = :aesKey where id = :user""")
+    fun updateAesKey(@Param("aesKey") aesKey: String, @Param("user") user: UUID)
 }
