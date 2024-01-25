@@ -52,7 +52,7 @@ class VaultService(val vaultDao: VaultDao, val fieldDao: FieldDao, val credentia
             }, cred.id))
         }
 
-        return Optional.of(VaultResponse(vaultUUID, credentialDtos))
+        return Optional.of(VaultResponse(vaultUUID, vault.get().title, vault.get().description, credentialDtos))
     }
 
     fun updateVault(vaultUpdate: VaultUpdate): VaultEntity {
