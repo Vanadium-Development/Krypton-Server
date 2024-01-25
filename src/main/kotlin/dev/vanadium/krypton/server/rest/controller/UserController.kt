@@ -22,6 +22,7 @@ class UserController(private val userService: UserService) : UserApi {
             createUserRequest.lastname,
             createUserRequest.username,
             createUserRequest.pubKey,
+            createUserRequest.aesKey,
             false
         )
 

@@ -11,7 +11,6 @@ import dev.vanadium.krypton.server.openapi.model.VaultResponse
 import dev.vanadium.krypton.server.persistence.dao.UserDao
 import dev.vanadium.krypton.server.persistence.dao.VaultDao
 import dev.vanadium.krypton.server.persistence.model.UserEntity
-import jakarta.annotation.PostConstruct
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
@@ -26,41 +25,6 @@ class UserService(
     private val vaultDao: VaultDao
 ) {
 
-    // TODO Remove this for production builds
-    /**
-     * Private key for testing:
-     *
-     * -----BEGIN RSA PRIVATE KEY-----
-     * MIICXQIBAAKBgQCKYMlX2WV6hGJpeQMNMpTM66zrDUpo/2J75tzjuqqSZDfBWwM5
-     * adk6M/e4UYEC2Y/uWDKldqu+OrePmOPNZEV3oExtai/yIC0dfvYWDN2zkYoPv0++
-     * jsYgJenZKLFDYpKM8QQ5MDZf6+MQQV1to3V5+MbE7fsRh5WIzTqsEXtB1wIDAQAB
-     * AoGBAIFqO2O5obqPjSpvTndNUvTDhRjfeTPxhL20D+m7bkMzDyH6aG2NnOdeKtNr
-     * BmkP6BhUzCkLb1udtobJymMQ4BW3ueXDlwKMGz63nKoD3IBKXBV787CBarD2NBda
-     * BzQkdF3PFkD8PVnwCtjP0fG2ufXdsNPZb9jGdhFe2NYN7GmBAkEA36ymWX0rlSkq
-     * ZDh8zh4fXQNxGqvRvtZh28ANqekFA0b3jcdeQhnG+vBZjM7+xgJsHToBpy9Mi40k
-     * AJbKVpwuMQJBAJ5gZu1tRBDUjpm3OfroZK3EL3EYOE5gtJzXY9Hr/MQAnDTTXhGn
-     * fVXnmZuATy+ZQqclTqLaMeuuelSs4g11xocCQB1Z8ppbqpRwSnfMUdRab5MtGHJ/
-     * iY6ZY04K7cAWK+o6LdIVD3FtIIddcuLfZt9lAfrz2bOuqUTGyKqrHvIunIECQGWQ
-     * lPE13Syd40UYh4osdkQpR/NTAOjig3EBf/YjTFm1unb2BaF0s5/fglaClkWEF4Zx
-     * Gli9bL4jije7Fsxi9wkCQQCiZTOm662Isc1Y2nppJN0XCTlw4UUWawrlD1HdYfss
-     * JRfqKHV9il9ZHg7r4HPiEABxEp37znUgVs6/wyaeWt96
-     * -----END RSA PRIVATE KEY-----
-     */
-    @PostConstruct
-    @Transactional
-    fun createAdminUser() {
-        if (userDao.getUserByUsername("admin") == null) {
-            createUser(
-                "admin", "admin", "admin", "-----BEGIN PUBLIC KEY-----\n" +
-                        "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCKYMlX2WV6hGJpeQMNMpTM66zr\n" +
-                        "DUpo/2J75tzjuqqSZDfBWwM5adk6M/e4UYEC2Y/uWDKldqu+OrePmOPNZEV3oExt\n" +
-                        "ai/yIC0dfvYWDN2zkYoPv0++jsYgJenZKLFDYpKM8QQ5MDZf6+MQQV1to3V5+MbE\n" +
-                        "7fsRh5WIzTqsEXtB1wIDAQAB\n" +
-                        "-----END PUBLIC KEY-----", true
-            )
-            sessionService.createSession(userDao.getUserByUsername("admin")!!.id)
-        }
-    }
 
     /**
      * Creates a new user and saves it in the database.
@@ -73,7 +37,7 @@ class UserService(
      * @throws ConflictException if the username already exists in the database
      */
     @Transactional
-    fun createUser(firstname: String, lastname: String, username: String, pubKey: String, admin: Boolean): UserEntity {
+    fun createUser(firstname: String, lastname: String, username: String, pubKey: String, aesKey: String, admin: Boolean): UserEntity {
 
         if (userDao.usernameExists(username))
             throw ConflictException("Username already exists.")
@@ -83,6 +47,7 @@ class UserService(
         entity.lastname = lastname
         entity.username = username
         entity.admin = admin
+        entity.aesKey = aesKey
         entity.pubKey =
             pubKey.replace("\n", "").replace("\r", "").replace("-----BEGIN PUBLIC KEY-----", "")
                 .replace("-----END PUBLIC KEY-----", "")
@@ -178,4 +143,8 @@ class UserService(
         userDao.save(presentEntity)
     }
 
+    @Transactional
+    fun updateAesKey(userId: UUID, aesKey: String) {
+        this.userDao.updateAesKey(aesKey, userId)
+    }
 }
