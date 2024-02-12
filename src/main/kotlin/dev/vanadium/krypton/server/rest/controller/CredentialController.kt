@@ -1,12 +1,16 @@
 package dev.vanadium.krypton.server.rest.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import dev.vanadium.krypton.server.authorizedUser
+import dev.vanadium.krypton.server.error.ForbiddenException
+import dev.vanadium.krypton.server.error.NotFoundException
 import dev.vanadium.krypton.server.openapi.controllers.CredentialApi
 import dev.vanadium.krypton.server.openapi.model.*
+import dev.vanadium.krypton.server.persistence.dao.CredentialDao
+import dev.vanadium.krypton.server.persistence.dao.FieldDao
 import dev.vanadium.krypton.server.service.CredentialService
 import dev.vanadium.krypton.server.service.FieldService
 import dev.vanadium.krypton.server.service.UserService
-import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.msgpack.jackson.dataformat.MessagePackFactory
 import org.springframework.core.io.ByteArrayResource
@@ -23,7 +27,8 @@ class CredentialController(
     val userService: UserService,
     val msgPackFactory: MessagePackFactory,
     val httpServletResponse: HttpServletResponse,
-    val httpServletRequest: HttpServletRequest
+    val fieldDao: FieldDao,
+    var credentialDao: CredentialDao
 ) : CredentialApi {
 
     override fun createCredential(
@@ -81,5 +86,20 @@ class CredentialController(
         )
 
         return ResponseEntity.ok(resource)
+    }
+
+    override fun addCredentialField(
+        uuid: UUID,
+        fieldCreateRequest: FieldCreateRequest
+    ): ResponseEntity<StatusResponse> {
+        val user = credentialDao.ownerOf(uuid) ?: throw NotFoundException("Credential field not found.")
+
+        val auth = authorizedUser()
+
+        if (user.id != authorizedUser().id && !auth.admin)
+            throw ForbiddenException("Operation required administrator access")
+
+        fieldService.createField(fieldCreateRequest.fieldType, fieldCreateRequest.title, fieldCreateRequest.value, uuid)
+        return ResponseEntity.ok(StatusResponse("OK"))
     }
 }
