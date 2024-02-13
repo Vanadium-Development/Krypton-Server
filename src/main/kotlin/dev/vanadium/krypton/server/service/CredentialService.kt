@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-class CredentialService(val credentialDao: CredentialDao, val vaultDao: VaultDao, val fieldDao: FieldDao) {
+class CredentialService(val credentialDao: CredentialDao, val vaultDao: VaultDao, val fieldDao: FieldDao, val fieldService: FieldService) {
 
     fun createCredential(title: String, vaultId: UUID): CredentialEntity {
         val vault = vaultDao.findById(vaultId)
@@ -44,7 +44,15 @@ class CredentialService(val credentialDao: CredentialDao, val vaultDao: VaultDao
         if (user.id != presentEntity.id && !user.admin)
             throw ForbiddenException("Admin status is required to modify another user's credentials")
 
-        presentEntity.title = credentialUpdate.title ?: presentEntity.title
+        val fields = fieldDao.fieldsOf(credentialUpdate.id)
+
+        fields.forEach {
+            fieldService.removeField(it.id)
+        }
+
+        credentialUpdate.body.forEach {
+            fieldService.createField(it.fieldType, it.title, it.value, credentialUpdate.id)
+        }
 
         credentialDao.save(presentEntity)
     }

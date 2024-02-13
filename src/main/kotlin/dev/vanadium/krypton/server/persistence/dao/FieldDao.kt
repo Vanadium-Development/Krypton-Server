@@ -12,6 +12,8 @@ interface FieldDao : CrudRepository<FieldEntity, UUID> {
     @Query("""select * from krypton_server.cred_field where cred_id = :credUUID""")
     fun fieldsOf(@Param("credUUID") credential: UUID): List<FieldEntity>
 
+    @Query("""delete from krypton_server.cred_field where cred_id = :credUUID""")
+    fun deleteAllFieldsOf(@Param("credUUID") credential: UUID)
 
 
 }
