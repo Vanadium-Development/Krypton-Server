@@ -2,6 +2,7 @@ package dev.vanadium.krypton.server.service
 
 import dev.vanadium.krypton.server.authorizedUser
 import dev.vanadium.krypton.server.error.ForbiddenException
+import dev.vanadium.krypton.server.error.InternalServerErrorException
 import dev.vanadium.krypton.server.error.NotFoundException
 import dev.vanadium.krypton.server.openapi.model.CredentialUpdate
 import dev.vanadium.krypton.server.persistence.dao.CredentialDao
@@ -40,8 +41,10 @@ class CredentialService(val credentialDao: CredentialDao, val vaultDao: VaultDao
 
         val presentEntity = entity.get()
 
+        val credentialUser = credentialDao.ownerOf(credentialUpdate.id) ?: throw InternalServerErrorException("Owner of valid credential not found.")
+
         val user = authorizedUser()
-        if (user.id != presentEntity.id && !user.admin)
+        if (user.id != credentialUser.id && !user.admin)
             throw ForbiddenException("Admin status is required to modify another user's credentials")
 
         val fields = fieldDao.fieldsOf(credentialUpdate.id)

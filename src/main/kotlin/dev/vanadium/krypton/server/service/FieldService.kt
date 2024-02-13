@@ -2,6 +2,7 @@ package dev.vanadium.krypton.server.service
 
 import dev.vanadium.krypton.server.authorizedUser
 import dev.vanadium.krypton.server.error.ForbiddenException
+import dev.vanadium.krypton.server.error.InternalServerErrorException
 import dev.vanadium.krypton.server.error.NotFoundException
 import dev.vanadium.krypton.server.openapi.model.FieldType
 import dev.vanadium.krypton.server.openapi.model.FieldUpdate
@@ -54,13 +55,17 @@ class FieldService(val fieldDao: FieldDao, val credentialDao: CredentialDao) {
     fun removeField(fieldUUID: UUID) {
         val entity = fieldDao.findById(fieldUUID)
 
+
         if (!entity.isPresent)
             throw NotFoundException("Could not find the requested field")
 
         val presentEntity = entity.get()
 
+        val owner = credentialDao.ownerOf(presentEntity.credId) ?: throw InternalServerErrorException("Owner of valid credential not found.")
+
+
         val user = authorizedUser()
-        if (user.id != presentEntity.id && !user.admin)
+        if (user.id != owner.id && !user.admin)
             throw ForbiddenException("Admin status is required to delete another user's credential fields")
 
         fieldDao.delete(presentEntity)
