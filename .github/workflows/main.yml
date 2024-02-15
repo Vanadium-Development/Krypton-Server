@@ -18,10 +18,8 @@ jobs:
           distribution: "corretto"
           java-version: "17"
 
-      - name: Build gradle
-        run: ./gradlew build
       - name: Build Spring Boot Jar
-        run: ./gradlew bootJar
+        run: ./gradlew -Pversion=1.0-${{env.GITHUB_SHA}} bootJar
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
