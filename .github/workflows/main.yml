@@ -24,3 +24,4 @@ jobs:
         with:
           name: krypton-server
           path: ./build/libs/server-*-SNAPSHOT.jar
+          submodules: "recursive"
