@@ -72,7 +72,9 @@ class CredentialService(val credentialDao: CredentialDao, val vaultDao: VaultDao
         val presentEntity = entity.get()
 
         val user = authorizedUser()
-        if (user.id != presentEntity.id && !user.admin)
+        val owner = credentialDao.ownerOf(presentEntity.id)  ?: throw InternalServerErrorException("Owner of valid credential not found.")
+
+        if (user.id != owner.id && !user.admin)
             throw ForbiddenException("Admin status is required to delete another user's credentials")
 
         // Delete cascade
