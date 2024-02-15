@@ -1,0 +1,26 @@
+name: Build and Deploy
+
+on:
+  push:
+
+jobs:
+  build-deploy:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: "corretto"
+          java-version: "17"
+
+      - name: Build gradle
+        run: ./gradlew build
+      - name: Build Spring Boot Jar
+        run: ./gradlew bootJar
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: krypton-server
+          path: ./build/libs/server-*-SNAPSHOT.jar
