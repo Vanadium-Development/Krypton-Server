@@ -11,6 +11,7 @@ import dev.vanadium.krypton.server.openapi.model.VaultResponse
 import dev.vanadium.krypton.server.persistence.dao.UserDao
 import dev.vanadium.krypton.server.persistence.dao.VaultDao
 import dev.vanadium.krypton.server.persistence.model.UserEntity
+import dev.vanadium.krypton.server.properties.KryptonProperties
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
@@ -22,7 +23,8 @@ class UserService(
     private val sessionService: SessionService,
     private val encryptionService: EncryptionService,
     private val vaultService: VaultService,
-    private val vaultDao: VaultDao
+    private val vaultDao: VaultDao,
+    private val kryptonProperties: KryptonProperties
 ) {
 
 
@@ -38,6 +40,10 @@ class UserService(
      */
     @Transactional
     fun createUser(firstname: String, lastname: String, username: String, pubKey: String, aesKey: String, admin: Boolean): UserEntity {
+
+
+        if(!kryptonProperties.loginEnabled)
+            throw ForbiddenException("Registration is currently disabled.")
 
         if (userDao.usernameExists(username))
             throw ConflictException("Username already exists.")
@@ -92,6 +98,10 @@ class UserService(
      */
     @Transactional
     fun login(username: String): String {
+
+        if(!kryptonProperties.loginEnabled)
+            throw ForbiddenException("Login is currently disabled.")
+
         val unauthorizedException = UnauthorizedException("Username incorrect.")
         val user = userDao.getUserByUsername(username) ?: throw unauthorizedException
 

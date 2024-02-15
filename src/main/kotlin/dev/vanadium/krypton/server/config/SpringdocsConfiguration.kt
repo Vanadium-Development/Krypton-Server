@@ -8,6 +8,8 @@ import org.springdoc.core.properties.SwaggerUiConfigProperties
 import org.springdoc.core.providers.ObjectMapperProvider
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
+import org.springframework.core.env.Environment
 import org.springframework.core.io.ClassPathResource
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -17,7 +19,7 @@ import java.util.*
 
 @Configuration
 @RestController
-class SpringdocsConfiguration {
+class SpringdocsConfiguration(val environment: Environment) {
 
     @Bean
     fun springDocConfiguration(): SpringDocConfiguration {
@@ -42,6 +44,11 @@ class SpringdocsConfiguration {
 
     @GetMapping("spec.yaml")
     fun getSpecYaml(): ResponseEntity<String> {
+
+        if(!(environment.activeProfiles.contains("dev") || environment.activeProfiles.isEmpty())) {
+            return ResponseEntity.ok("Documentation not available outside development mode.")
+        }
+
         val file = ClassPathResource("static/spec.yaml")
 
         if(!file.exists()) {
