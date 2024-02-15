@@ -1,0 +1,27 @@
+name: Build and Deploy
+
+on:
+  push:
+
+jobs:
+  build-deploy:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
+          token: ${{secrets.TOKEN}}
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: "corretto"
+          java-version: "17"
+
+      - name: Build Spring Boot Jar
+        run: ./gradlew -Pversion=1.0-${GITHUB_SHA:0:8} bootJar
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: krypton-server
+          path: ./build/libs/server-*.jar

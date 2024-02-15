@@ -11,7 +11,6 @@ plugins {
 }
 
 group = "dev.vanadium.krypton"
-version = "0.0.1-SNAPSHOT"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -64,6 +63,7 @@ openApiGenerate {
     openApiGenerate.configOptions.put("useSpringBoot3", "true")
     openApiGenerate.configOptions.put("interfaceOnly", "true")
 }
+
 
 
 tasks.withType<KotlinCompile> {
