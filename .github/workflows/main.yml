@@ -21,11 +21,6 @@ jobs:
 
       - name: Build Spring Boot Jar
         run: ./gradlew -Pversion=1.0-${GITHUB_SHA:0:8} bootJar
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: krypton-server
-          path: ./build/libs/server-*.jar
       - name: Build Docker Image
         run: docker build -t shortyping/krypton-server:1.0-${GITHUB_SHA:0:8} .
       - name: Login to Docker
