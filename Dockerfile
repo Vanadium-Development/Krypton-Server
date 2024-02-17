@@ -1,4 +1,5 @@
-FROM gradle:alpine
+FROM arm64v8/gradle:jdk21
+
 
 WORKDIR /app
 EXPOSE 8080
