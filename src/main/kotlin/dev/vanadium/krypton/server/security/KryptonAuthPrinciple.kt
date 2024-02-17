@@ -35,3 +35,34 @@ class KryptonAuthentication(val user: UserEntity, val session: SessionEntity, va
 
 
 }
+
+class CorsAuthentication() : Authentication {
+    override fun getName(): String {
+        return "cors"
+    }
+
+    override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
+        return mutableListOf()
+    }
+
+    override fun getCredentials(): Any {
+        return "cors"
+    }
+
+    override fun getDetails(): Any {
+        return "N/a"
+    }
+
+    override fun getPrincipal(): String {
+        return "cors"
+    }
+
+    override fun isAuthenticated(): Boolean {
+        return true
+    }
+
+    override fun setAuthenticated(isAuthenticated: Boolean) {
+    }
+
+
+}

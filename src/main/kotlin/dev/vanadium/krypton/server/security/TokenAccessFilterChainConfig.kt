@@ -19,6 +19,7 @@ class TokenAccessFilterChainConfig(private var sessionDao: SessionDao) {
 
         http {
 
+
             securityMatcher("/**")
             csrf { disable() }
             cors { disable() }

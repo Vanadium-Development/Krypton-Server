@@ -15,6 +15,15 @@ class TokenFilter(private var sessionDao: SessionDao) : OncePerRequestFilter() {
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
+
+        if(request.method.equals("OPTIONS")) {
+            SecurityContextHolder.getContext().authentication = CorsAuthentication()
+            SecurityContextHolder.getContext().authentication.isAuthenticated = true
+
+            filterChain.doFilter(request,response)
+            return
+        }
+
         val header = request.getHeader("Authorization")
 
         if (header == null) {

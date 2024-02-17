@@ -1,0 +1,1 @@
+./gradlew clean bootJar && docker build . -t shortyping/krypton-server:test-1 && docker push shortyping/krypton-server:test-1

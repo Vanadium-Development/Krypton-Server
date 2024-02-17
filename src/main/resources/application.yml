@@ -18,3 +18,4 @@ krypton:
   documentation:
     login-username: demo
     login-password: demo
+  cors-enabled-domain: https://krypton-dev.tunnel.vanadium.dev
